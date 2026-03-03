@@ -26,4 +26,23 @@ class UserService {
       throw Exception('Error: $e');
     }
   }
+
+  Future<User?> getUserById(int id) async {
+  final url = Uri.parse('$_baseUrl/users/$id');
+
+  final response = await http.get(
+    url,
+    headers: {'Content-Type': 'application/json'},
+  );
+
+  if (response.statusCode == 200) {
+    final jsonData = jsonDecode(response.body);
+    return User.fromJson(jsonData);
+  } else if (response.statusCode == 404) {
+    return null;
+  } else {
+    throw Exception('Error: ${response.statusCode}');
+  }
 }
+}
+
