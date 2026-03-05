@@ -1,7 +1,9 @@
 
 import 'dart:io';
 
+import 'package:peticiones_http/models/post_model.dart';
 import 'package:peticiones_http/models/user_model.dart';
+import 'package:peticiones_http/services/post_service.dart';
 import 'package:peticiones_http/services/user_service.dart';
 
 void listarUsuarios(List<User> users) {
@@ -15,6 +17,15 @@ void listarUsuarios(List<User> users) {
   }
 }
 
+void listarPosts(List<Post> posts) {
+  print('\n---------- Listado Posts -----------\n');
+
+  for (final post in posts) {
+    print('${post.id} | ${post.userId}');
+  }
+}
+
+
 void mostrarUsuario(User user) {
   print('\n---------- Usuario Encontrado -----------\n');
   print('ID: ${user.id}');
@@ -27,6 +38,8 @@ void mostrarUsuario(User user) {
   print('Ciudad: ${user.address.city}');
 }
 
+
+
 void main() async {
   final service = UserService();
 
@@ -34,10 +47,13 @@ void main() async {
     print('\n=========== MENU ===========');
     print('1. Listado General');
     print('2. Listado Único');
-    print('3. Salir');
+    print('3. POST');
+    print('4. salir');
     stdout.write('Seleccione una opción: ');
 
     final opcion = stdin.readLineSync();
+    final postService = PostService();
+
 
     switch (opcion) {
       case '1':
@@ -65,8 +81,14 @@ void main() async {
       break;
 
       case '3':
-        print('Saliendo...');
-        return;
+      final post = await postService.postPosts();
+
+      print('\nPOST creado correctamente');
+      print('ID: ${post.id}');
+      print('Título: ${post.title}');
+      print('Contenido: ${post.body}');
+      break;
+
 
       default:
         print('Opción inválida.');
