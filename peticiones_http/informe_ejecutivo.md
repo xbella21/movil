@@ -1,7 +1,7 @@
 # Informe Ejecutivo del Código en main.dart
 
 ## Resumen Ejecutivo
-Este archivo `main.dart` implementa una aplicación de consola en Dart que permite gestionar usuarios a través de peticiones HTTP. Utiliza un servicio para obtener datos de usuarios y presenta un menú interactivo para listar usuarios o consultar uno específico. El código es modular, con funciones separadas para la presentación de datos, facilitando su mantenimiento y comprensión.
+Este archivo `main.dart` implementa una aplicación de consola en Dart que permite gestionar usuarios y posts a través de peticiones HTTP. Utiliza servicios para obtener datos de usuarios y crear posts, presentando un menú interactivo para listar usuarios, consultar uno específico o crear un nuevo post. El código es modular, con funciones separadas para la presentación de datos, facilitando su mantenimiento y comprensión.
 
 ## Bloques de Código y Funcionalidades
 
@@ -11,20 +11,26 @@ Este archivo `main.dart` implementa una aplicación de consola en Dart que permi
   - `dart:io`: Para entrada/salida estándar (stdin, stdout).
   - `user_model.dart`: Modelo de datos para representar un usuario.
   - `user_service.dart`: Servicio que maneja las peticiones HTTP para obtener usuarios.
+  - `post_model.dart`: Modelo de datos para representar un post.
+  - `post_service.dart`: Servicio que maneja las peticiones HTTP para crear posts.
 - **Por qué es importante**: Sin estas importaciones, el código no podría acceder a las clases y funciones externas.
 
 #### Contenido del Bloque
 ```dart
 import 'dart:io';
 
+import 'package:peticiones_http/models/post_model.dart';
 import 'package:peticiones_http/models/user_model.dart';
+import 'package:peticiones_http/services/post_service.dart';
 import 'package:peticiones_http/services/user_service.dart';
 ```
 
 #### Explicación Línea por Línea
 - Línea 1: Importa la biblioteca `dart:io` para manejar entrada y salida estándar (como leer del teclado y escribir en consola).
-- Línea 3: Importa el modelo `User` desde el paquete local `peticiones_http/models/user_model.dart`, necesario para representar los datos de usuario.
-- Línea 4: Importa el servicio `UserService` desde el paquete local `peticiones_http/services/user_service.dart`, que maneja las llamadas HTTP.
+- Línea 3: Importa el modelo `Post` desde el paquete local `peticiones_http/models/post_model.dart`, necesario para representar los datos de post.
+- Línea 4: Importa el modelo `User` desde el paquete local `peticiones_http/models/user_model.dart`, necesario para representar los datos de usuario.
+- Línea 5: Importa el servicio `PostService` desde el paquete local `peticiones_http/services/post_service.dart`, que maneja las llamadas HTTP para posts.
+- Línea 6: Importa el servicio `UserService` desde el paquete local `peticiones_http/services/user_service.dart`, que maneja las llamadas HTTP para usuarios.
 
 ### 2. Función `listarUsuarios(List<User> users)`
 - **Propósito**: Muestra una lista formateada de todos los usuarios en la consola.
@@ -58,7 +64,33 @@ void listarUsuarios(List<User> users) {
 - Línea 6: Obtiene el email del usuario.
 - Línea 8: Imprime el ID, nombre y email formateados como una fila de tabla.
 
-### 3. Función `mostrarUsuario(User user)`
+### 3. Función `listarPosts(List<Post> posts)`
+- **Propósito**: Muestra una lista formateada de todos los posts en la consola.
+- **Detalles**:
+  - Imprime un encabezado.
+  - Itera sobre la lista de posts.
+  - Formatea cada post con ID y userId.
+- **Facilidad de memorización**: "Lista posts en tabla: ID | UserID".
+- **Explicación**: Esta función toma una lista de posts y los presenta de manera legible.
+
+#### Contenido del Bloque
+```dart
+void listarPosts(List<Post> posts) {
+  print('\n---------- Listado Posts -----------\n');
+
+  for (final post in posts) {
+    print('${post.id} | ${post.userId}');
+  }
+}
+```
+
+#### Explicación Línea por Línea
+- Línea 1: Define la función `listarPosts` que recibe una lista de objetos `Post`.
+- Línea 2: Imprime un encabezado con saltos de línea para separar la salida.
+- Línea 4: Inicia un bucle `for` que itera sobre cada post en la lista.
+- Línea 5: Imprime el ID y userId del post formateados.
+
+### 4. Función `mostrarUsuario(User user)`
 - **Propósito**: Muestra los detalles completos de un usuario específico.
 - **Detalles**:
   - Imprime un encabezado.
@@ -86,15 +118,15 @@ void mostrarUsuario(User user) {
 - Línea 2: Imprime un encabezado para el usuario encontrado.
 - Líneas 3-10: Imprime cada propiedad del usuario con una etiqueta, usando interpolación de strings para insertar los valores.
 
-### 4. Función `main()` (asíncrona)
+### 5. Función `main()` (asíncrona)
 - **Propósito**: Punto de entrada de la aplicación, ejecuta un bucle infinito con un menú de opciones.
 - **Detalles**:
   - Crea una instancia de `UserService`.
   - En un bucle `while(true)`:
-    - Muestra un menú con 3 opciones: Listado General, Listado Único, Salir.
+    - Muestra un menú con 4 opciones: Listado General, Listado Único, POST, Salir.
     - Lee la entrada del usuario.
     - Usa un `switch` para manejar las opciones.
-- **Facilidad de memorización**: "Menú principal: 1. Listar todos, 2. Buscar por ID, 3. Salir".
+- **Facilidad de memorización**: "Menú principal: 1. Listar todos, 2. Buscar por ID, 3. Crear post, 4. Salir".
 - **Explicación**: El corazón de la app; mantiene la interacción hasta que el usuario elige salir.
 
 #### Contenido del Bloque
@@ -106,10 +138,13 @@ void main() async {
     print('\n=========== MENU ===========');
     print('1. Listado General');
     print('2. Listado Único');
-    print('3. Salir');
+    print('3. POST');
+    print('4. salir');
     stdout.write('Seleccione una opción: ');
 
     final opcion = stdin.readLineSync();
+    final postService = PostService();
+
 
     switch (opcion) {
       case '1':
@@ -137,8 +172,14 @@ void main() async {
       break;
 
       case '3':
-        print('Saliendo...');
-        return;
+      final post = await postService.postPosts();
+
+      print('\nPOST creado correctamente');
+      print('ID: ${post.id}');
+      print('Título: ${post.title}');
+      print('Contenido: ${post.body}');
+      break;
+
 
       default:
         print('Opción inválida.');
@@ -151,15 +192,16 @@ void main() async {
 - Línea 1: Define la función `main` como asíncrona para manejar operaciones HTTP.
 - Línea 2: Crea una instancia del servicio `UserService`.
 - Línea 4: Inicia un bucle infinito `while(true)`.
-- Líneas 5-9: Imprime el menú de opciones y solicita selección.
-- Línea 11: Lee la entrada del usuario.
-- Línea 13: Inicia un `switch` basado en la opción.
+- Líneas 5-10: Imprime el menú de opciones y solicita selección.
+- Línea 12: Lee la entrada del usuario.
+- Línea 13: Crea una instancia de `PostService` dentro del bucle (nota: podría optimizarse moviéndolo fuera).
+- Línea 15: Inicia un `switch` basado en la opción.
 - Caso '1': Obtiene usuarios y los lista.
 - Caso '2': Pide ID, valida, busca usuario y lo muestra o informa error.
-- Caso '3': Imprime mensaje y sale.
+- Caso '3': Crea un post usando `postService.postPosts()`, muestra los detalles del post creado.
 - Default: Opción inválida.
 
-### 5. Opción 1: Listado General
+### 6. Opción 1: Listado General
 - **Propósito**: Obtiene y lista todos los usuarios.
 - **Detalles**:
   - Llama a `service.getUsers()` para obtener la lista.
@@ -181,7 +223,7 @@ case '1':
 - Línea 3: Pasa la lista a la función `listarUsuarios` para mostrarla.
 - Línea 4: Rompe el switch.
 
-### 6. Opción 2: Listado Único
+### 7. Opción 2: Listado Único
 - **Propósito**: Busca y muestra un usuario por ID.
 - **Detalles**:
   - Pide al usuario ingresar un ID.
@@ -223,26 +265,48 @@ case '2':
 - Líneas 10-14: Si el usuario existe, lo muestra; si no, informa error.
 - Línea 16: Si la entrada es inválida, imprime mensaje.
 
-### 7. Opción 3: Salir
-- **Propósito**: Termina la ejecución de la aplicación.
+### 8. Opción 3: POST
+- **Propósito**: Crea un nuevo post a través de una petición HTTP.
 - **Detalles**:
-  - Imprime "Saliendo..." y ejecuta `return` para salir del bucle y la función main.
-- **Facilidad de memorización**: "Opción 3: Salir del programa".
-- **Explicación**: Opción simple para cerrar la app de manera controlada.
+  - Llama a `postService.postPosts()` para crear un post.
+  - Muestra los detalles del post creado: ID, título y contenido.
+- **Facilidad de memorización**: "Opción 3: Crear y mostrar un nuevo post".
+- **Explicación**: Realiza una petición POST para crear un post y muestra la respuesta.
 
 #### Contenido del Bloque
 ```dart
 case '3':
-  print('Saliendo...');
-  return;
+  final post = await postService.postPosts();
+
+  print('\nPOST creado correctamente');
+  print('ID: ${post.id}');
+  print('Título: ${post.title}');
+  print('Contenido: ${post.body}');
+  break;
 ```
 
 #### Explicación Línea por Línea
 - Línea 1: Caso para opción '3'.
-- Línea 2: Imprime mensaje de salida.
-- Línea 3: Retorna de la función main, terminando el programa.
+- Línea 2: Llama al método asíncrono `postPosts()` del servicio para crear un post.
+- Líneas 4-6: Imprime mensaje de éxito y detalles del post creado.
+- Línea 7: Rompe el switch.
 
-### 8. Caso Default en Switch
+### 9. Opción 4: Salir
+- **Propósito**: Termina la ejecución de la aplicación.
+- **Detalles**:
+  - No hay acción específica, ya que el default maneja opciones inválidas, pero en el código actual, salir no está implementado explícitamente en el switch.
+- **Facilidad de memorización**: "Opción 4: Salir del programa".
+- **Explicación**: En el código actual, la opción 4 no tiene un case específico, por lo que cae en default.
+
+#### Contenido del Bloque
+```dart
+// No hay case '4' en el switch, por lo que va a default.
+```
+
+#### Explicación Línea por Línea
+- En el código actual, no hay un case para '4', así que se maneja como opción inválida.
+
+### 10. Caso Default en Switch
 - **Propósito**: Maneja opciones inválidas.
 - **Detalles**:
   - Si la opción no es 1, 2 o 3, imprime "Opción inválida.".
