@@ -199,6 +199,7 @@ void main() async {
 - Caso '1': Obtiene usuarios y los lista.
 - Caso '2': Pide ID, valida, busca usuario y lo muestra o informa error.
 - Caso '3': Crea un post usando `postService.postPosts()`, muestra los detalles del post creado.
+- Caso '4': Imprime mensaje y sale.
 - Default: Opción inválida.
 
 ### 6. Opción 1: Listado General
@@ -294,22 +295,26 @@ case '3':
 ### 9. Opción 4: Salir
 - **Propósito**: Termina la ejecución de la aplicación.
 - **Detalles**:
-  - No hay acción específica, ya que el default maneja opciones inválidas, pero en el código actual, salir no está implementado explícitamente en el switch.
+  - Imprime "Saliendo..." y ejecuta `return` para salir del bucle y la función main.
 - **Facilidad de memorización**: "Opción 4: Salir del programa".
-- **Explicación**: En el código actual, la opción 4 no tiene un case específico, por lo que cae en default.
+- **Explicación**: Opción simple para cerrar la app de manera controlada.
 
 #### Contenido del Bloque
 ```dart
-// No hay case '4' en el switch, por lo que va a default.
+case '4':
+  print('Saliendo...');
+  return;
 ```
 
 #### Explicación Línea por Línea
-- En el código actual, no hay un case para '4', así que se maneja como opción inválida.
+- Línea 1: Caso para opción '4'.
+- Línea 2: Imprime mensaje de salida.
+- Línea 3: Retorna de la función main, terminando el programa.
 
 ### 10. Caso Default en Switch
 - **Propósito**: Maneja opciones inválidas.
 - **Detalles**:
-  - Si la opción no es 1, 2 o 3, imprime "Opción inválida.".
+  - Si la opción no es 1, 2, 3 o 4, imprime "Opción inválida.".
 - **Facilidad de memorización**: "Default: Opción no válida".
 - **Explicación**: Proporciona retroalimentación al usuario para entradas incorrectas.
 

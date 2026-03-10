@@ -82,6 +82,7 @@ void main() async {
 
       case '3':
       final post = await postService.postPosts();
+      
 
       print('\nPOST creado correctamente');
       print('ID: ${post.id}');
@@ -89,6 +90,9 @@ void main() async {
       print('Contenido: ${post.body}');
       break;
 
+      case '4':
+        print('Saliendo...');
+        return;
 
       default:
         print('Opción inválida.');
