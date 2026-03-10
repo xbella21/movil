@@ -90,9 +90,6 @@ void main() async {
       print('Contenido: ${post.body}');
       break;
 
-      case '4':
-        print('Saliendo...');
-        return;
 
       default:
         print('Opción inválida.');

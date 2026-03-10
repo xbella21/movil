@@ -20,7 +20,6 @@ class PostService {
 
   if (response.statusCode == 201 || response.statusCode == 200) {
     print("Status code: ${response.statusCode}");
-    print("Respuesta: ${response.body}");
 
     final jsonData = jsonDecode(response.body);
     return Post.fromJson(jsonData);
