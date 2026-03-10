@@ -11,28 +11,28 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
+      title: 'Mi primer App',
       theme: ThemeData(
       
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: .fromSeed(seedColor: const Color.fromARGB(255, 209, 28, 215)),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Mi Primer App', email:'izzobee@gmail.com'),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-
   final String title;
+  final String email;
+  const MyHomePage({super.key, required this.title, this.email=''});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  int _counter = 100;
 
   void _incrementCounter() {
     setState(() {
@@ -49,6 +49,11 @@ class _MyHomePageState extends State<MyHomePage> {
         
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
+        actions: [IconButton(onPressed: () {}, icon: Icon(Icons.exit_to_app_outlined),
+           
+            
+          ),
+        ],
       ),
       body: Center(
         
@@ -56,11 +61,20 @@ class _MyHomePageState extends State<MyHomePage> {
          
           mainAxisAlignment: .center,
           children: [
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
+            const Text('Contador de clicks:'),
+            const Text('Bienvenido:'),
+
+            Row(
+              mainAxisAlignment: .center,
+              children: [
+                IconButton(onPressed: (){}, icon: Icon(Icons.remove)),
+                Text(
+                  '$_counter',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                IconButton(onPressed: (){_incrementCounter();}, icon: Icon(Icons.add)),]
+            )
+            
           ],
         ),
       ),
