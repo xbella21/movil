@@ -1,0 +1,1800 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía Flutter CRUD – Programación Móvil</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #21262d;
+    --border: #30363d;
+    --accent: #00d4aa;
+    --accent2: #58a6ff;
+    --accent3: #f78166;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --yellow: #e3b341;
+    --purple: #bc8cff;
+    --green: #3fb950;
+    --code-bg: #0d1117;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    border-bottom: 1px solid var(--border);
+    padding: 40px 0 0;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 70% 50%, rgba(0,212,170,.12) 0%, transparent 60%);
+  }
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 32px;
+    position: relative;
+  }
+  .badge-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .badge {
+    background: rgba(0,212,170,.15);
+    border: 1px solid rgba(0,212,170,.35);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+  }
+  .badge.blue { background: rgba(88,166,255,.12); border-color: rgba(88,166,255,.3); color: var(--accent2); }
+  .badge.yellow { background: rgba(227,179,65,.12); border-color: rgba(227,179,65,.3); color: var(--yellow); }
+  header h1 {
+    font-size: clamp(28px, 5vw, 44px);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -.02em;
+  }
+  header h1 span { color: var(--accent); }
+  .header-sub {
+    color: var(--text-muted);
+    font-size: 15px;
+    margin-top: 10px;
+  }
+  .meta-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    margin-top: 36px;
+    border-top: 1px solid var(--border);
+  }
+  .meta-item {
+    background: rgba(13,17,23,.7);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .meta-item .icon { font-size: 18px; }
+  .meta-item .label { font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: var(--text-muted); }
+  .meta-item .val { font-size: 14px; font-weight: 600; color: var(--text); }
+
+  /* ── MAIN ── */
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 48px 32px 80px;
+  }
+
+  /* ── STEP CARDS ── */
+  .step {
+    margin-bottom: 48px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .step-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 24px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+  .step-num {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #0d1117;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .step-num.blue { background: var(--accent2); }
+  .step-num.yellow { background: var(--yellow); }
+  .step-num.red { background: var(--accent3); }
+  .step-num.purple { background: var(--purple); }
+  .step-num.green { background: var(--green); }
+  .step-title { font-size: 18px; font-weight: 700; }
+  .step-time { margin-left: auto; font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+
+  .step-body { padding: 24px; }
+  .step-body p { color: var(--text-muted); margin-bottom: 14px; font-size: 15px; }
+  .step-body p strong { color: var(--text); }
+
+  /* ── INFO BOXES ── */
+  .info-box {
+    background: rgba(88,166,255,.07);
+    border-left: 3px solid var(--accent2);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin: 16px 0;
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+  .info-box.tip { border-color: var(--accent); background: rgba(0,212,170,.07); }
+  .info-box.warn { border-color: var(--yellow); background: rgba(227,179,65,.07); }
+  .info-box strong { color: var(--text); display: block; margin-bottom: 4px; }
+
+  /* ── FOLDER TREE ── */
+  .folder-tree {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    line-height: 2;
+    margin: 16px 0;
+  }
+  .folder-tree .dir { color: var(--accent2); }
+  .folder-tree .file { color: var(--text-muted); }
+  .folder-tree .file.dart { color: var(--accent); }
+  .folder-tree .indent1 { padding-left: 20px; }
+  .folder-tree .indent2 { padding-left: 40px; }
+  .folder-tree .indent3 { padding-left: 60px; }
+
+  /* ── CODE BLOCKS ── */
+  .code-wrapper {
+    margin: 16px 0;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .code-tab {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface2);
+    padding: 8px 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+  }
+  .code-tab .filename { color: var(--accent); font-weight: 700; }
+  .copy-btn {
+    background: rgba(0,212,170,.12);
+    border: 1px solid rgba(0,212,170,.3);
+    color: var(--accent);
+    font-size: 11px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .copy-btn:hover { background: rgba(0,212,170,.22); }
+  pre {
+    background: var(--code-bg);
+    padding: 20px;
+    overflow-x: auto;
+    font-family: 'Space Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.8;
+    tab-size: 2;
+  }
+  pre code { background: none; padding: 0; }
+
+  /* syntax */
+  .kw { color: #ff7b72; } /* keywords */
+  .fn { color: #d2a8ff; } /* functions/classes */
+  .str { color: #a5d6ff; } /* strings */
+  .num { color: var(--accent3); } /* numbers */
+  .cm { color: #8b949e; font-style: italic; } /* comments */
+  .ty { color: var(--accent2); } /* types */
+  .pr { color: var(--accent); } /* properties/variables */
+  .op { color: #ff7b72; } /* operators */
+  .an { color: var(--yellow); } /* annotations */
+
+  /* ── DEPENDENCY CARD ── */
+  .dep-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .dep-card {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .dep-card .dep-name { font-family: 'Space Mono', monospace; color: var(--accent); font-size: 13px; font-weight: 700; }
+  .dep-card .dep-version { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .dep-card .dep-desc { font-size: 13px; color: var(--text-muted); margin-top: 6px; }
+
+  /* ── ENDPOINT TAG ── */
+  .endpoint {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,212,170,.08);
+    border: 1px solid rgba(0,212,170,.25);
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    margin: 12px 0;
+  }
+  .method {
+    background: var(--accent);
+    color: #0d1117;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 3px;
+  }
+  .method.post { background: var(--yellow); }
+  .method.put { background: var(--accent2); }
+  .method.del { background: var(--accent3); }
+
+  /* ── ENDPOINT TABLE ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+  th {
+    background: var(--surface2);
+    color: var(--text-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    font-weight: 600;
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  td:first-child { font-family: 'Space Mono', monospace; font-size: 12px; color: var(--accent); }
+  tr:last-child td { border-bottom: none; }
+
+  /* ── TOC ── */
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 40px;
+  }
+  .toc h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .1em; color: var(--text-muted); margin-bottom: 16px; }
+  .toc-list { list-style: none; }
+  .toc-list li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .toc-list li:last-child { border-bottom: none; }
+  .toc-num {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    font-size: 11px;
+    font-family: 'Space Mono', monospace;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+  .toc-list a { color: var(--text); text-decoration: none; font-size: 14px; font-weight: 500; transition: color .2s; }
+  .toc-list a:hover { color: var(--accent); }
+  .toc-t { margin-left: auto; font-size: 11px; color: var(--text-muted); }
+
+  /* ── WIDGET COMPARISON ── */
+  .widget-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .widget-card {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+  }
+  .widget-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 6px; color: var(--accent2); }
+  .widget-card p { font-size: 13px; color: var(--text-muted); }
+  .widget-card.sl h4 { color: var(--accent); }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 32px;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+  footer strong { color: var(--accent); }
+
+  /* scrollbar */
+  pre::-webkit-scrollbar { height: 4px; }
+  pre::-webkit-scrollbar-track { background: transparent; }
+  pre::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  @media (max-width: 600px) {
+    .widget-row { grid-template-columns: 1fr; }
+    header h1 { font-size: 26px; }
+  }
+
+  /* ── ACTIVITIES SECTION ── */
+  .act-section {
+    margin-top: 60px;
+    margin-bottom: 60px;
+  }
+  .act-section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .act-section-header .act-icon {
+    font-size: 32px;
+  }
+  .act-section-header h2 {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -.02em;
+  }
+  .act-section-header h2 span { color: var(--accent); }
+  .act-section-header p {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .act-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .act-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color .2s, transform .2s;
+    cursor: default;
+  }
+  .act-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+  .act-card-top {
+    padding: 18px 18px 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .act-emoji { font-size: 28px; line-height: 1; }
+  .act-diff {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 20px;
+  }
+  .diff-easy   { background: rgba(63,185,80,.15);  color: var(--green);   border: 1px solid rgba(63,185,80,.3); }
+  .diff-medium { background: rgba(227,179,65,.12); color: var(--yellow);  border: 1px solid rgba(227,179,65,.3); }
+  .diff-hard   { background: rgba(247,129,102,.12); color: var(--accent3); border: 1px solid rgba(247,129,102,.3); }
+
+  .act-card-body { padding: 12px 18px 20px; }
+  .act-card-body h4 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .act-card-body p  { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+  .act-card-footer {
+    border-top: 1px solid var(--border);
+    padding: 10px 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--surface2);
+  }
+
+  /* ── EXPANDED ACTIVITY (Actividad 1 con código) ── */
+  .act-full {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .act-full-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 22px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+  }
+  .act-full-header:hover { background: rgba(33,38,45,.8); }
+  .act-full-num {
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    background: rgba(0,212,170,.15);
+    border: 1px solid rgba(0,212,170,.3);
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .act-full-title { font-size: 16px; font-weight: 700; flex: 1; }
+  .act-full-badges { display: flex; gap: 8px; align-items: center; }
+  .act-chevron { color: var(--text-muted); font-size: 12px; transition: transform .25s; }
+  .act-chevron.open { transform: rotate(180deg); }
+
+  .act-full-body { padding: 22px; display: none; }
+  .act-full-body.visible { display: block; }
+  .act-full-body p { color: var(--text-muted); font-size: 14px; margin-bottom: 12px; }
+  .act-full-body p strong { color: var(--text); }
+
+  .steps-list { list-style: none; margin: 14px 0; }
+  .steps-list li {
+    display: flex;
+    gap: 12px;
+    padding: 8px 0;
+    font-size: 14px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+  }
+  .steps-list li:last-child { border-bottom: none; }
+  .steps-list .s-num {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--surface2);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .submit-row {
+    background: linear-gradient(135deg, rgba(0,212,170,.07), rgba(88,166,255,.07));
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 22px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .submit-row .s-icon { font-size: 28px; }
+  .submit-row h4 { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .submit-row p { font-size: 13px; color: var(--text-muted); }
+</style>
+</head>
+<body>
+
+<!-- ══════════════ HEADER ══════════════ -->
+<header>
+  <div class="header-inner">
+    <div class="badge-row">
+      <span class="badge">Flutter 3.41</span>
+      <span class="badge blue">CRUD</span>
+      <span class="badge yellow">⏱ 1h 30 min</span>
+    </div>
+    <h1>Guía Práctica:<br><span>CRUD con Flutter</span></h1>
+    <p class="header-sub">Consumo de API REST · StatefulWidget · Arquitectura por capas</p>
+    <div class="meta-strip">
+      <div class="meta-item">
+        <span class="icon">👨‍🏫</span>
+        <div><div class="label">Docente</div><div class="val">Alex Vacca</div></div>
+      </div>
+      <div class="meta-item">
+        <span class="icon">📱</span>
+        <div><div class="label">Materia</div><div class="val">Programación Móvil</div></div>
+      </div>
+      <div class="meta-item">
+        <span class="icon">🏫</span>
+        <div><div class="label">Universidad</div><div class="val">Popular del Cesar</div></div>
+      </div>
+      <div class="meta-item">
+        <span class="icon">🌐</span>
+        <div><div class="label">API</div><div class="val">JSONPlaceholder</div></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════════ MAIN ══════════════ -->
+<main>
+
+  <!-- TOC -->
+  <div class="toc">
+    <h3>📋 Contenido de la Guía</h3>
+    <ul class="toc-list">
+      <li><span class="toc-num">1</span><a href="#s1">Introducción y estructura del proyecto</a><span class="toc-t">10 min</span></li>
+      <li><span class="toc-num">2</span><a href="#s2">Crear el proyecto e instalar dependencias</a><span class="toc-t">10 min</span></li>
+      <li><span class="toc-num">3</span><a href="#s3">Modelo de datos – User</a><span class="toc-t">10 min</span></li>
+      <li><span class="toc-num">4</span><a href="#s4">Servicio HTTP – ApiService</a><span class="toc-t">20 min</span></li>
+      <li><span class="toc-num">5</span><a href="#s5">Pantalla principal – Lista de usuarios</a><span class="toc-t">15 min</span></li>
+      <li><span class="toc-num">6</span><a href="#s6">Formulario – Crear / Editar usuario</a><span class="toc-t">15 min</span></li>
+      <li><span class="toc-num">7</span><a href="#s7">Conectar todo – main.dart</a><span class="toc-t">10 min</span></li>
+      <li><span class="toc-num" style="background:var(--yellow);color:#0d1117;">★</span><a href="#actividades">Actividades Prácticas</a><span class="toc-t">Extra</span></li>
+    </ul>
+  </div>
+
+  <!-- ══ STEP 1 ══ -->
+  <div class="step" id="s1">
+    <div class="step-header">
+      <div class="step-num">1</div>
+      <span class="step-title">Introducción y Estructura del Proyecto</span>
+      <span class="step-time">⏱ ~10 min</span>
+    </div>
+    <div class="step-body">
+      <p>En esta guía construirás una aplicación Flutter que consume la API pública <strong>JSONPlaceholder</strong> para realizar las 4 operaciones básicas de un CRUD sobre usuarios.</p>
+
+      <div class="endpoint"><span class="method">GET</span> https://jsonplaceholder.typicode.com/users</div>
+
+      <table>
+        <tr><th>Operación</th><th>Método HTTP</th><th>Descripción</th></tr>
+        <tr><td>GET /users</td><td>GET</td><td>Listar todos los usuarios</td></tr>
+        <tr><td>POST /users</td><td>POST</td><td>Crear un usuario nuevo</td></tr>
+        <tr><td>PUT /users/:id</td><td>PUT</td><td>Actualizar un usuario</td></tr>
+        <tr><td>DELETE /users/:id</td><td>DELETE</td><td>Eliminar un usuario</td></tr>
+      </table>
+
+      <p><strong>Arquitectura por capas:</strong> Separamos el código en 3 carpetas para mantener el proyecto ordenado.</p>
+
+      <div class="folder-tree">
+        <div class="dir">📁 lib/</div>
+        <div class="indent1 dir">📁 models/</div>
+        <div class="indent2 file dart">📄 user.dart</div>
+        <div class="indent1 dir">📁 services/</div>
+        <div class="indent2 file dart">📄 api_service.dart</div>
+        <div class="indent1 dir">📁 ui/</div>
+        <div class="indent2 file dart">📄 user_list_screen.dart</div>
+        <div class="indent2 file dart">📄 user_form_screen.dart</div>
+        <div class="indent1 file dart">📄 main.dart</div>
+      </div>
+
+      <p><strong>StatelessWidget vs StatefulWidget</strong> — ¿cuándo usar cada uno?</p>
+      <div class="widget-row">
+        <div class="widget-card sl">
+          <h4>StatelessWidget</h4>
+          <p>Sin estado interno. Ideal para tarjetas, íconos, textos estáticos. Se construye una sola vez.</p>
+        </div>
+        <div class="widget-card">
+          <h4>StatefulWidget</h4>
+          <p>Con estado mutable. Usa <code>setState()</code> para redibujar la pantalla. Ideal para formularios y listas dinámicas.</p>
+        </div>
+      </div>
+      <div class="info-box tip"><strong>💡 Regla práctica:</strong> Si tu pantalla necesita cargar datos de internet o responder a acciones del usuario actualizando la UI → usa <strong>StatefulWidget</strong>.</div>
+    </div>
+  </div>
+
+  <!-- ══ STEP 2 ══ -->
+  <div class="step" id="s2">
+    <div class="step-header">
+      <div class="step-num blue">2</div>
+      <span class="step-title">Crear el Proyecto e Instalar Dependencias</span>
+      <span class="step-time">⏱ ~10 min</span>
+    </div>
+    <div class="step-body">
+      <p>Abre tu terminal y ejecuta el siguiente comando para crear el proyecto Flutter:</p>
+
+      <div class="code-wrapper">
+        <div class="code-tab"><span class="filename">Terminal</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+        <pre><code>flutter create crud_usuarios
+cd crud_usuarios</code></pre>
+      </div>
+
+      <p>Ahora abre el archivo <strong>pubspec.yaml</strong> y reemplaza la sección <code>dependencies</code> con lo siguiente:</p>
+
+      <div class="dep-grid">
+        <div class="dep-card">
+          <div class="dep-name">http</div>
+          <div class="dep-version">^1.2.1</div>
+          <div class="dep-desc">Para realizar peticiones HTTP a la API REST.</div>
+        </div>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-tab"><span class="filename">pubspec.yaml</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+        <pre><code><span class="kw">name:</span> crud_usuarios
+<span class="kw">description:</span> <span class="str">CRUD de usuarios con Flutter</span>
+<span class="kw">publish_to:</span> <span class="str">'none'</span>
+<span class="kw">version:</span> 1.0.0+1
+
+<span class="kw">environment:</span>
+  <span class="kw">sdk:</span> <span class="str">'>=3.0.0 <4.0.0'</span>
+
+<span class="kw">dependencies:</span>
+  <span class="kw">flutter:</span>
+    <span class="kw">sdk:</span> flutter
+  <span class="kw">http:</span> <span class="str">^1.2.1</span>
+
+<span class="kw">flutter:</span>
+  <span class="kw">uses-material-design:</span> <span class="kw">true</span></code></pre>
+      </div>
+
+      <p>Guarda el archivo y ejecuta el siguiente comando para instalar la dependencia:</p>
+
+      <div class="code-wrapper">
+        <div class="code-tab"><span class="filename">Terminal</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+        <pre><code>flutter pub get</code></pre>
+      </div>
+
+      <p>Luego crea las carpetas del proyecto manualmente o desde la terminal:</p>
+      <div class="code-wrapper">
+        <div class="code-tab"><span class="filename">Terminal</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+        <pre><code>mkdir lib/models lib/services lib/ui</code></pre>
+      </div>
+
+      <div class="info-box warn"><strong>⚠️ Android – Permisos de Internet:</strong> Abre <code>android/app/src/main/AndroidManifest.xml</code> y agrega esta línea antes de &lt;application&gt;:<br><br><code>&lt;uses-permission android:name="android.permission.INTERNET"/&gt;</code></div>
+    </div>
+  </div>
+
+  <!-- ══ STEP 3 ══ -->
+  <div class="step" id="s3">
+    <div class="step-header">
+      <div class="step-num yellow">3</div>
+      <span class="step-title">Modelo de Datos – user.dart</span>
+      <span class="step-time">⏱ ~10 min</span>
+    </div>
+    <div class="step-body">
+      <p>El modelo es una clase Dart que representa la estructura de un usuario tal como viene en la respuesta JSON de la API. Crea el archivo <strong>lib/models/user.dart</strong>:</p>
+
+      <div class="info-box"><strong>🔍 ¿Qué hace fromJson?</strong> Convierte el Map que devuelve la API en un objeto User de Dart. El método <code>toJson()</code> hace lo contrario: convierte el objeto a Map para enviarlo al servidor.</div>
+
+      <div class="code-wrapper">
+        <div class="code-tab"><span class="filename">lib/models/user.dart</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+        <pre><code><span class="kw">class</span> <span class="ty">User</span> {
+  <span class="kw">final</span> <span class="ty">int</span>? <span class="pr">id</span>;
+  <span class="kw">final</span> <span class="ty">String</span> <span class="pr">name</span>;
+  <span class="kw">final</span> <span class="ty">String</span> <span class="pr">email</span>;
+  <span class="kw">final</span> <span class="ty">String</span> <span class="pr">phone</span>;
+
+  <span class="ty">User</span>({
+    <span class="kw">this</span>.<span class="pr">id</span>,
+    <span class="kw">required</span> <span class="kw">this</span>.<span class="pr">name</span>,
+    <span class="kw">required</span> <span class="kw">this</span>.<span class="pr">email</span>,
+    <span class="kw">required</span> <span class="kw">this</span>.<span class="pr">phone</span>,
+  });
+
+  <span class="cm">/// Crea un User desde un Map (respuesta JSON)</span>
+  <span class="kw">factory</span> <span class="ty">User</span>.<span class="fn">fromJson</span>(<span class="ty">Map</span>&lt;<span class="ty">String</span>, <span class="kw">dynamic</span>&gt; <span class="pr">json</span>) {
+    <span class="kw">return</span> <span class="ty">User</span>(
+      id:    <span class="pr">json</span>[<span class="str">'id'</span>]    <span class="kw">as</span> <span class="ty">int</span>?,
+      name:  <span class="pr">json</span>[<span class="str">'name'</span>]  <span class="kw">as</span> <span class="ty">String</span>,
+      email: <span class="pr">json</span>[<span class="str">'email'</span>] <span class="kw">as</span> <span class="ty">String</span>,
+      phone: <span class="pr">json</span>[<span class="str">'phone'</span>] <span class="kw">as</span> <span class="ty">String</span>,
+    );
+  }
+
+  <span class="cm">/// Convierte el User a un Map (para enviar a la API)</span>
+  <span class="ty">Map</span>&lt;<span class="ty">String</span>, <span class="kw">dynamic</span>&gt; <span class="fn">toJson</span>() {
+    <span class="kw">return</span> {
+      <span class="str">'name'</span>:  <span class="pr">name</span>,
+      <span class="str">'email'</span>: <span class="pr">email</span>,
+      <span class="str">'phone'</span>: <span class="pr">phone</span>,
+    };
+  }
+}</code></pre>
+      </div>
+
+      <div class="info-box tip"><strong>💡 Nota:</strong> El campo <code>id</code> es opcional (<code>int?</code>) porque cuando creamos un usuario nuevo, aún no tiene ID asignado por el servidor.</div>
+    </div>
+  </div>
+
+  <!-- ══ STEP 4 ══ -->
+  <div class="step" id="s4">
+    <div class="step-header">
+      <div class="step-num red">4</div>
+      <span class="step-title">Servicio HTTP – api_service.dart</span>
+      <span class="step-time">⏱ ~20 min</span>
+    </div>
+    <div class="step-body">
+      <p>Este archivo centraliza <strong>todas las llamadas a la API</strong>. Cada método corresponde a una operación CRUD. Crea el archivo <strong>lib/services/api_service.dart</strong>:</p>
+
+      <div class="code-wrapper">
+        <div class="code-tab"><span class="filename">lib/services/api_service.dart</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+        <pre><code><span class="kw">import</span> <span class="str">'dart:convert'</span>;
+<span class="kw">import</span> <span class="str">'package:http/http.dart'</span> <span class="kw">as</span> http;
+<span class="kw">import</span> <span class="str">'../models/user.dart'</span>;
+
+<span class="kw">class</span> <span class="ty">ApiService</span> {
+  <span class="cm">// URL base de la API</span>
+  <span class="kw">static</span> <span class="kw">const</span> <span class="ty">String</span> <span class="pr">_base</span> = <span class="str">'https://jsonplaceholder.typicode.com/users'</span>;
+
+  <span class="cm">// ── READ: Obtener todos los usuarios ──────────────────</span>
+  <span class="kw">Future</span>&lt;<span class="ty">List</span>&lt;<span class="ty">User</span>&gt;&gt; <span class="fn">getUsers</span>() <span class="kw">async</span> {
+    <span class="kw">final</span> <span class="pr">response</span> = <span class="kw">await</span> http.<span class="fn">get</span>(<span class="ty">Uri</span>.<span class="fn">parse</span>(<span class="pr">_base</span>));
+
+    <span class="kw">if</span> (<span class="pr">response</span>.statusCode == <span class="num">200</span>) {
+      <span class="kw">final</span> <span class="ty">List</span> <span class="pr">data</span> = <span class="fn">jsonDecode</span>(<span class="pr">response</span>.body);
+      <span class="kw">return</span> <span class="pr">data</span>.<span class="fn">map</span>((<span class="pr">e</span>) =&gt; <span class="ty">User</span>.<span class="fn">fromJson</span>(<span class="pr">e</span>)).<span class="fn">toList</span>();
+    } <span class="kw">else</span> {
+      <span class="kw">throw</span> <span class="ty">Exception</span>(<span class="str">'Error al cargar usuarios'</span>);
+    }
+  }
+
+  <span class="cm">// ── CREATE: Crear un usuario nuevo ────────────────────</span>
+  <span class="kw">Future</span>&lt;<span class="ty">User</span>&gt; <span class="fn">createUser</span>(<span class="ty">User</span> <span class="pr">user</span>) <span class="kw">async</span> {
+    <span class="kw">final</span> <span class="pr">response</span> = <span class="kw">await</span> http.<span class="fn">post</span>(
+      <span class="ty">Uri</span>.<span class="fn">parse</span>(<span class="pr">_base</span>),
+      headers: {<span class="str">'Content-Type'</span>: <span class="str">'application/json'</span>},
+      body: <span class="fn">jsonEncode</span>(<span class="pr">user</span>.<span class="fn">toJson</span>()),
+    );
+
+    <span class="kw">if</span> (<span class="pr">response</span>.statusCode == <span class="num">201</span>) {
+      <span class="kw">return</span> <span class="ty">User</span>.<span class="fn">fromJson</span>(<span class="fn">jsonDecode</span>(<span class="pr">response</span>.body));
+    } <span class="kw">else</span> {
+      <span class="kw">throw</span> <span class="ty">Exception</span>(<span class="str">'Error al crear usuario'</span>);
+    }
+  }
+
+  <span class="cm">// ── UPDATE: Actualizar un usuario existente ───────────</span>
+  <span class="kw">Future</span>&lt;<span class="ty">User</span>&gt; <span class="fn">updateUser</span>(<span class="ty">User</span> <span class="pr">user</span>) <span class="kw">async</span> {
+    <span class="kw">final</span> <span class="pr">response</span> = <span class="kw">await</span> http.<span class="fn">put</span>(
+      <span class="ty">Uri</span>.<span class="fn">parse</span>(<span class="str">'</span><span class="pr">$_base</span><span class="str">/</span><span class="pr">${user.id}</span><span class="str">'</span>),
+      headers: {<span class="str">'Content-Type'</span>: <span class="str">'application/json'</span>},
+      body: <span class="fn">jsonEncode</span>(<span class="pr">user</span>.<span class="fn">toJson</span>()),
+    );
+
+    <span class="kw">if</span> (<span class="pr">response</span>.statusCode == <span class="num">200</span>) {
+      <span class="kw">return</span> <span class="ty">User</span>.<span class="fn">fromJson</span>(<span class="fn">jsonDecode</span>(<span class="pr">response</span>.body));
+    } <span class="kw">else</span> {
+      <span class="kw">throw</span> <span class="ty">Exception</span>(<span class="str">'Error al actualizar usuario'</span>);
+    }
+  }
+
+  <span class="cm">// ── DELETE: Eliminar un usuario ───────────────────────</span>
+  <span class="kw">Future</span>&lt;<span class="kw">void</span>&gt; <span class="fn">deleteUser</span>(<span class="ty">int</span> <span class="pr">id</span>) <span class="kw">async</span> {
+    <span class="kw">final</span> <span class="pr">response</span> = <span class="kw">await</span> http.<span class="fn">delete</span>(
+      <span class="ty">Uri</span>.<span class="fn">parse</span>(<span class="str">'</span><span class="pr">$_base</span><span class="str">/</span><span class="pr">$id</span><span class="str">'</span>),
+    );
+
+    <span class="kw">if</span> (<span class="pr">response</span>.statusCode != <span class="num">200</span>) {
+      <span class="kw">throw</span> <span class="ty">Exception</span>(<span class="str">'Error al eliminar usuario'</span>);
+    }
+  }
+}</code></pre>
+      </div>
+
+      <div class="info-box"><strong>📌 ¿Qué hace async/await?</strong> Las peticiones HTTP son operaciones asincrónicas (toman tiempo). La palabra clave <code>async</code> indica que la función puede esperar, y <code>await</code> pausa la ejecución hasta recibir respuesta del servidor, sin bloquear la app.</div>
+    </div>
+  </div>
+
+  <!-- ══ STEP 5 ══ -->
+  <div class="step" id="s5">
+    <div class="step-header">
+      <div class="step-num purple">5</div>
+      <span class="step-title">Pantalla Principal – user_list_screen.dart</span>
+      <span class="step-time">⏱ ~15 min</span>
+    </div>
+    <div class="step-body">
+      <p>Esta es la pantalla principal que muestra la lista de usuarios. Usa <strong>StatefulWidget</strong> porque necesita cargar datos al iniciar y actualizarse tras cada operación CRUD.</p>
+      <p>Crea el archivo <strong>lib/ui/user_list_screen.dart</strong>:</p>
+
+      <div class="code-wrapper">
+        <div class="code-tab"><span class="filename">lib/ui/user_list_screen.dart</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+        <pre><code><span class="kw">import</span> <span class="str">'package:flutter/material.dart'</span>;
+<span class="kw">import</span> <span class="str">'../models/user.dart'</span>;
+<span class="kw">import</span> <span class="str">'../services/api_service.dart'</span>;
+<span class="kw">import</span> <span class="str">'user_form_screen.dart'</span>;
+
+<span class="kw">class</span> <span class="ty">UserListScreen</span> <span class="kw">extends</span> <span class="ty">StatefulWidget</span> {
+  <span class="kw">const</span> <span class="ty">UserListScreen</span>({<span class="kw">super</span>.key});
+
+  <span class="an">@override</span>
+  <span class="ty">State</span>&lt;<span class="ty">UserListScreen</span>&gt; <span class="fn">createState</span>() =&gt; <span class="fn">_UserListScreenState</span>();
+}
+
+<span class="kw">class</span> <span class="ty">_UserListScreenState</span> <span class="kw">extends</span> <span class="ty">State</span>&lt;<span class="ty">UserListScreen</span>&gt; {
+  <span class="kw">final</span> <span class="ty">ApiService</span> <span class="pr">_api</span> = <span class="ty">ApiService</span>();
+  <span class="ty">List</span>&lt;<span class="ty">User</span>&gt; <span class="pr">_users</span> = [];
+  <span class="ty">bool</span> <span class="pr">_loading</span> = <span class="kw">true</span>;
+
+  <span class="an">@override</span>
+  <span class="kw">void</span> <span class="fn">initState</span>() {
+    <span class="kw">super</span>.<span class="fn">initState</span>();
+    <span class="fn">_loadUsers</span>();
+  }
+
+  <span class="cm">// Carga los usuarios desde la API</span>
+  <span class="kw">Future</span>&lt;<span class="kw">void</span>&gt; <span class="fn">_loadUsers</span>() <span class="kw">async</span> {
+    <span class="fn">setState</span>(() =&gt; <span class="pr">_loading</span> = <span class="kw">true</span>);
+    <span class="kw">try</span> {
+      <span class="kw">final</span> <span class="pr">users</span> = <span class="kw">await</span> <span class="pr">_api</span>.<span class="fn">getUsers</span>();
+      <span class="fn">setState</span>(() {
+        <span class="pr">_users</span> = <span class="pr">users</span>;
+        <span class="pr">_loading</span> = <span class="kw">false</span>;
+      });
+    } <span class="kw">catch</span> (<span class="pr">e</span>) {
+      <span class="fn">setState</span>(() =&gt; <span class="pr">_loading</span> = <span class="kw">false</span>);
+      <span class="fn">_showError</span>(<span class="str">'Error al cargar usuarios'</span>);
+    }
+  }
+
+  <span class="cm">// Abre el formulario para crear o editar</span>
+  <span class="kw">Future</span>&lt;<span class="kw">void</span>&gt; <span class="fn">_openForm</span>([<span class="ty">User</span>? <span class="pr">user</span>]) <span class="kw">async</span> {
+    <span class="kw">final</span> <span class="pr">result</span> = <span class="kw">await</span> <span class="ty">Navigator</span>.<span class="fn">push</span>(
+      context,
+      <span class="ty">MaterialPageRoute</span>(
+        builder: (<span class="pr">_</span>) =&gt; <span class="ty">UserFormScreen</span>(user: <span class="pr">user</span>),
+      ),
+    );
+    <span class="kw">if</span> (<span class="pr">result</span> == <span class="kw">true</span>) <span class="fn">_loadUsers</span>(); <span class="cm">// recargar si hubo cambios</span>
+  }
+
+  <span class="cm">// Elimina un usuario con confirmación</span>
+  <span class="kw">Future</span>&lt;<span class="kw">void</span>&gt; <span class="fn">_deleteUser</span>(<span class="ty">User</span> <span class="pr">user</span>) <span class="kw">async</span> {
+    <span class="kw">final</span> <span class="pr">confirm</span> = <span class="kw">await</span> <span class="fn">showDialog</span>&lt;<span class="ty">bool</span>&gt;(
+      context: context,
+      builder: (<span class="pr">ctx</span>) =&gt; <span class="ty">AlertDialog</span>(
+        title: <span class="kw">const</span> <span class="ty">Text</span>(<span class="str">'Eliminar usuario'</span>),
+        content: <span class="ty">Text</span>(<span class="str">'¿Eliminar a </span><span class="pr">${user.name}</span><span class="str">?'</span>),
+        actions: [
+          <span class="ty">TextButton</span>(
+            onPressed: () =&gt; <span class="ty">Navigator</span>.<span class="fn">pop</span>(<span class="pr">ctx</span>, <span class="kw">false</span>),
+            child: <span class="kw">const</span> <span class="ty">Text</span>(<span class="str">'Cancelar'</span>),
+          ),
+          <span class="ty">TextButton</span>(
+            onPressed: () =&gt; <span class="ty">Navigator</span>.<span class="fn">pop</span>(<span class="pr">ctx</span>, <span class="kw">true</span>),
+            child: <span class="kw">const</span> <span class="ty">Text</span>(<span class="str">'Eliminar'</span>, style: <span class="ty">TextStyle</span>(color: <span class="ty">Colors</span>.red)),
+          ),
+        ],
+      ),
+    );
+
+    <span class="kw">if</span> (<span class="pr">confirm</span> == <span class="kw">true</span>) {
+      <span class="kw">try</span> {
+        <span class="kw">await</span> <span class="pr">_api</span>.<span class="fn">deleteUser</span>(<span class="pr">user</span>.id!);
+        <span class="fn">_loadUsers</span>();
+      } <span class="kw">catch</span> (<span class="pr">e</span>) {
+        <span class="fn">_showError</span>(<span class="str">'No se pudo eliminar el usuario'</span>);
+      }
+    }
+  }
+
+  <span class="kw">void</span> <span class="fn">_showError</span>(<span class="ty">String</span> <span class="pr">msg</span>) {
+    <span class="ty">ScaffoldMessenger</span>.<span class="fn">of</span>(context).<span class="fn">showSnackBar</span>(
+      <span class="ty">SnackBar</span>(content: <span class="ty">Text</span>(<span class="pr">msg</span>), backgroundColor: <span class="ty">Colors</span>.red),
+    );
+  }
+
+  <span class="an">@override</span>
+  <span class="ty">Widget</span> <span class="fn">build</span>(<span class="ty">BuildContext</span> <span class="pr">context</span>) {
+    <span class="kw">return</span> <span class="ty">Scaffold</span>(
+      appBar: <span class="ty">AppBar</span>(
+        title: <span class="kw">const</span> <span class="ty">Text</span>(<span class="str">'Usuarios'</span>),
+        backgroundColor: <span class="ty">Colors</span>.teal,
+        foregroundColor: <span class="ty">Colors</span>.white,
+      ),
+      body: <span class="pr">_loading</span>
+          ? <span class="kw">const</span> <span class="ty">Center</span>(child: <span class="ty">CircularProgressIndicator</span>())
+          : <span class="ty">ListView</span>.<span class="fn">builder</span>(
+              itemCount: <span class="pr">_users</span>.length,
+              itemBuilder: (<span class="pr">_</span>, <span class="pr">i</span>) {
+                <span class="kw">final</span> <span class="pr">user</span> = <span class="pr">_users</span>[<span class="pr">i</span>];
+                <span class="kw">return</span> <span class="ty">Card</span>(
+                  margin: <span class="kw">const</span> <span class="ty">EdgeInsets</span>.<span class="fn">symmetric</span>(horizontal: <span class="num">12</span>, vertical: <span class="num">6</span>),
+                  child: <span class="ty">ListTile</span>(
+                    leading: <span class="ty">CircleAvatar</span>(
+                      backgroundColor: <span class="ty">Colors</span>.teal,
+                      child: <span class="ty">Text</span>(
+                        <span class="pr">user</span>.name[<span class="num">0</span>].toUpperCase(),
+                        style: <span class="kw">const</span> <span class="ty">TextStyle</span>(color: <span class="ty">Colors</span>.white),
+                      ),
+                    ),
+                    title: <span class="ty">Text</span>(<span class="pr">user</span>.name, style: <span class="kw">const</span> <span class="ty">TextStyle</span>(fontWeight: <span class="ty">FontWeight</span>.bold)),
+                    subtitle: <span class="ty">Text</span>(<span class="pr">user</span>.email),
+                    trailing: <span class="ty">Row</span>(
+                      mainAxisSize: <span class="ty">MainAxisSize</span>.min,
+                      children: [
+                        <span class="ty">IconButton</span>(
+                          icon: <span class="kw">const</span> <span class="ty">Icon</span>(<span class="ty">Icons</span>.edit, color: <span class="ty">Colors</span>.blue),
+                          onPressed: () =&gt; <span class="fn">_openForm</span>(<span class="pr">user</span>),
+                        ),
+                        <span class="ty">IconButton</span>(
+                          icon: <span class="kw">const</span> <span class="ty">Icon</span>(<span class="ty">Icons</span>.delete, color: <span class="ty">Colors</span>.red),
+                          onPressed: () =&gt; <span class="fn">_deleteUser</span>(<span class="pr">user</span>),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+      floatingActionButton: <span class="ty">FloatingActionButton</span>(
+        backgroundColor: <span class="ty">Colors</span>.teal,
+        onPressed: () =&gt; <span class="fn">_openForm</span>(),
+        child: <span class="kw">const</span> <span class="ty">Icon</span>(<span class="ty">Icons</span>.add, color: <span class="ty">Colors</span>.white),
+      ),
+    );
+  }
+}</code></pre>
+      </div>
+
+      <div class="info-box tip"><strong>💡 initState()</strong> es el método que se llama automáticamente cuando el widget se inserta en el árbol de widgets, equivale al constructor de la pantalla. Aquí llamamos <code>_loadUsers()</code> para cargar los datos apenas abre la pantalla.</div>
+    </div>
+  </div>
+
+  <!-- ══ STEP 6 ══ -->
+  <div class="step" id="s6">
+    <div class="step-header">
+      <div class="step-num green">6</div>
+      <span class="step-title">Formulario – user_form_screen.dart</span>
+      <span class="step-time">⏱ ~15 min</span>
+    </div>
+    <div class="step-body">
+      <p>Este formulario sirve tanto para <strong>crear</strong> como para <strong>editar</strong> un usuario. Si recibe un objeto <code>User</code>, es modo edición; si no recibe nada, es modo creación.</p>
+      <p>Crea el archivo <strong>lib/ui/user_form_screen.dart</strong>:</p>
+
+      <div class="code-wrapper">
+        <div class="code-tab"><span class="filename">lib/ui/user_form_screen.dart</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+        <pre><code><span class="kw">import</span> <span class="str">'package:flutter/material.dart'</span>;
+<span class="kw">import</span> <span class="str">'../models/user.dart'</span>;
+<span class="kw">import</span> <span class="str">'../services/api_service.dart'</span>;
+
+<span class="kw">class</span> <span class="ty">UserFormScreen</span> <span class="kw">extends</span> <span class="ty">StatefulWidget</span> {
+  <span class="kw">final</span> <span class="ty">User</span>? <span class="pr">user</span>; <span class="cm">// null = crear, distinto de null = editar</span>
+
+  <span class="kw">const</span> <span class="ty">UserFormScreen</span>({<span class="kw">super</span>.key, <span class="kw">this</span>.<span class="pr">user</span>});
+
+  <span class="an">@override</span>
+  <span class="ty">State</span>&lt;<span class="ty">UserFormScreen</span>&gt; <span class="fn">createState</span>() =&gt; <span class="fn">_UserFormScreenState</span>();
+}
+
+<span class="kw">class</span> <span class="ty">_UserFormScreenState</span> <span class="kw">extends</span> <span class="ty">State</span>&lt;<span class="ty">UserFormScreen</span>&gt; {
+  <span class="kw">final</span> <span class="pr">_formKey</span> = <span class="ty">GlobalKey</span>&lt;<span class="ty">FormState</span>&gt;();
+  <span class="kw">final</span> <span class="ty">ApiService</span> <span class="pr">_api</span> = <span class="ty">ApiService</span>();
+
+  <span class="kw">late</span> <span class="ty">TextEditingController</span> <span class="pr">_nameCtrl</span>;
+  <span class="kw">late</span> <span class="ty">TextEditingController</span> <span class="pr">_emailCtrl</span>;
+  <span class="kw">late</span> <span class="ty">TextEditingController</span> <span class="pr">_phoneCtrl</span>;
+  <span class="ty">bool</span> <span class="pr">_saving</span> = <span class="kw">false</span>;
+
+  <span class="an">@override</span>
+  <span class="kw">void</span> <span class="fn">initState</span>() {
+    <span class="kw">super</span>.<span class="fn">initState</span>();
+    <span class="cm">// Si hay usuario, pre-llenar los campos</span>
+    <span class="pr">_nameCtrl</span>  = <span class="ty">TextEditingController</span>(text: widget.<span class="pr">user</span>?.name  ?? <span class="str">''</span>);
+    <span class="pr">_emailCtrl</span> = <span class="ty">TextEditingController</span>(text: widget.<span class="pr">user</span>?.email ?? <span class="str">''</span>);
+    <span class="pr">_phoneCtrl</span> = <span class="ty">TextEditingController</span>(text: widget.<span class="pr">user</span>?.phone ?? <span class="str">''</span>);
+  }
+
+  <span class="an">@override</span>
+  <span class="kw">void</span> <span class="fn">dispose</span>() {
+    <span class="cm">// Liberar memoria de los controladores</span>
+    <span class="pr">_nameCtrl</span>.<span class="fn">dispose</span>();
+    <span class="pr">_emailCtrl</span>.<span class="fn">dispose</span>();
+    <span class="pr">_phoneCtrl</span>.<span class="fn">dispose</span>();
+    <span class="kw">super</span>.<span class="fn">dispose</span>();
+  }
+
+  <span class="cm">// Guarda: crea o actualiza según el caso</span>
+  <span class="kw">Future</span>&lt;<span class="kw">void</span>&gt; <span class="fn">_save</span>() <span class="kw">async</span> {
+    <span class="kw">if</span> (!<span class="pr">_formKey</span>.currentState!.<span class="fn">validate</span>()) <span class="kw">return</span>;
+
+    <span class="fn">setState</span>(() =&gt; <span class="pr">_saving</span> = <span class="kw">true</span>);
+
+    <span class="kw">final</span> <span class="pr">newUser</span> = <span class="ty">User</span>(
+      id:    widget.<span class="pr">user</span>?.id,
+      name:  <span class="pr">_nameCtrl</span>.text.trim(),
+      email: <span class="pr">_emailCtrl</span>.text.trim(),
+      phone: <span class="pr">_phoneCtrl</span>.text.trim(),
+    );
+
+    <span class="kw">try</span> {
+      <span class="kw">if</span> (widget.<span class="pr">user</span> == <span class="kw">null</span>) {
+        <span class="kw">await</span> <span class="pr">_api</span>.<span class="fn">createUser</span>(<span class="pr">newUser</span>);
+      } <span class="kw">else</span> {
+        <span class="kw">await</span> <span class="pr">_api</span>.<span class="fn">updateUser</span>(<span class="pr">newUser</span>);
+      }
+      <span class="kw">if</span> (mounted) <span class="ty">Navigator</span>.<span class="fn">pop</span>(context, <span class="kw">true</span>); <span class="cm">// true = hubo cambios</span>
+    } <span class="kw">catch</span> (<span class="pr">e</span>) {
+      <span class="fn">setState</span>(() =&gt; <span class="pr">_saving</span> = <span class="kw">false</span>);
+      <span class="ty">ScaffoldMessenger</span>.<span class="fn">of</span>(context).<span class="fn">showSnackBar</span>(
+        <span class="kw">const</span> <span class="ty">SnackBar</span>(content: <span class="ty">Text</span>(<span class="str">'Error al guardar'</span>), backgroundColor: <span class="ty">Colors</span>.red),
+      );
+    }
+  }
+
+  <span class="an">@override</span>
+  <span class="ty">Widget</span> <span class="fn">build</span>(<span class="ty">BuildContext</span> <span class="pr">context</span>) {
+    <span class="kw">final</span> <span class="pr">isEditing</span> = widget.<span class="pr">user</span> != <span class="kw">null</span>;
+
+    <span class="kw">return</span> <span class="ty">Scaffold</span>(
+      appBar: <span class="ty">AppBar</span>(
+        title: <span class="ty">Text</span>(<span class="pr">isEditing</span> ? <span class="str">'Editar Usuario'</span> : <span class="str">'Nuevo Usuario'</span>),
+        backgroundColor: <span class="ty">Colors</span>.teal,
+        foregroundColor: <span class="ty">Colors</span>.white,
+      ),
+      body: <span class="ty">Padding</span>(
+        padding: <span class="kw">const</span> <span class="ty">EdgeInsets</span>.<span class="fn">all</span>(<span class="num">20</span>),
+        child: <span class="ty">Form</span>(
+          key: <span class="pr">_formKey</span>,
+          child: <span class="ty">Column</span>(
+            children: [
+              <span class="cm">// ── Campo Nombre ──</span>
+              <span class="ty">TextFormField</span>(
+                controller: <span class="pr">_nameCtrl</span>,
+                decoration: <span class="kw">const</span> <span class="ty">InputDecoration</span>(
+                  labelText: <span class="str">'Nombre completo'</span>,
+                  prefixIcon: <span class="ty">Icon</span>(<span class="ty">Icons</span>.person),
+                  border: <span class="ty">OutlineInputBorder</span>(),
+                ),
+                validator: (<span class="pr">v</span>) =&gt; (v == <span class="kw">null</span> || v.isEmpty) ? <span class="str">'Campo requerido'</span> : <span class="kw">null</span>,
+              ),
+              <span class="kw">const</span> <span class="ty">SizedBox</span>(height: <span class="num">16</span>),
+
+              <span class="cm">// ── Campo Email ──</span>
+              <span class="ty">TextFormField</span>(
+                controller: <span class="pr">_emailCtrl</span>,
+                keyboardType: <span class="ty">TextInputType</span>.emailAddress,
+                decoration: <span class="kw">const</span> <span class="ty">InputDecoration</span>(
+                  labelText: <span class="str">'Correo electrónico'</span>,
+                  prefixIcon: <span class="ty">Icon</span>(<span class="ty">Icons</span>.email),
+                  border: <span class="ty">OutlineInputBorder</span>(),
+                ),
+                validator: (<span class="pr">v</span>) =&gt; (v == <span class="kw">null</span> || !v.contains(<span class="str">'@'</span>)) ? <span class="str">'Email inválido'</span> : <span class="kw">null</span>,
+              ),
+              <span class="kw">const</span> <span class="ty">SizedBox</span>(height: <span class="num">16</span>),
+
+              <span class="cm">// ── Campo Teléfono ──</span>
+              <span class="ty">TextFormField</span>(
+                controller: <span class="pr">_phoneCtrl</span>,
+                keyboardType: <span class="ty">TextInputType</span>.phone,
+                decoration: <span class="kw">const</span> <span class="ty">InputDecoration</span>(
+                  labelText: <span class="str">'Teléfono'</span>,
+                  prefixIcon: <span class="ty">Icon</span>(<span class="ty">Icons</span>.phone),
+                  border: <span class="ty">OutlineInputBorder</span>(),
+                ),
+                validator: (<span class="pr">v</span>) =&gt; (v == <span class="kw">null</span> || v.isEmpty) ? <span class="str">'Campo requerido'</span> : <span class="kw">null</span>,
+              ),
+              <span class="kw">const</span> <span class="ty">SizedBox</span>(height: <span class="num">24</span>),
+
+              <span class="cm">// ── Botón Guardar ──</span>
+              <span class="ty">SizedBox</span>(
+                width: <span class="kw">double</span>.infinity,
+                height: <span class="num">50</span>,
+                child: <span class="ty">ElevatedButton</span>(
+                  onPressed: <span class="pr">_saving</span> ? <span class="kw">null</span> : <span class="pr">_save</span>,
+                  style: <span class="ty">ElevatedButton</span>.<span class="fn">styleFrom</span>(
+                    backgroundColor: <span class="ty">Colors</span>.teal,
+                    foregroundColor: <span class="ty">Colors</span>.white,
+                  ),
+                  child: <span class="pr">_saving</span>
+                      ? <span class="kw">const</span> <span class="ty">CircularProgressIndicator</span>(color: <span class="ty">Colors</span>.white)
+                      : <span class="ty">Text</span>(<span class="pr">isEditing</span> ? <span class="str">'Actualizar'</span> : <span class="str">'Crear Usuario'</span>, fontSize: <span class="num">16</span>),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}</code></pre>
+      </div>
+
+      <div class="info-box tip"><strong>💡 dispose()</strong> es el método que se llama cuando el widget se elimina del árbol. Siempre debes llamar <code>.dispose()</code> en los <code>TextEditingController</code> para liberar memoria.</div>
+    </div>
+  </div>
+
+  <!-- ══ STEP 7 ══ -->
+  <div class="step" id="s7">
+    <div class="step-header">
+      <div class="step-num">7</div>
+      <span class="step-title">Conectar Todo – main.dart</span>
+      <span class="step-time">⏱ ~10 min</span>
+    </div>
+    <div class="step-body">
+      <p>Por último, reemplaza el contenido del archivo <strong>lib/main.dart</strong> para conectar toda la app:</p>
+
+      <div class="code-wrapper">
+        <div class="code-tab"><span class="filename">lib/main.dart</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+        <pre><code><span class="kw">import</span> <span class="str">'package:flutter/material.dart'</span>;
+<span class="kw">import</span> <span class="str">'ui/user_list_screen.dart'</span>;
+
+<span class="kw">void</span> <span class="fn">main</span>() {
+  <span class="fn">runApp</span>(<span class="kw">const</span> <span class="ty">MyApp</span>());
+}
+
+<span class="kw">class</span> <span class="ty">MyApp</span> <span class="kw">extends</span> <span class="ty">StatelessWidget</span> {
+  <span class="kw">const</span> <span class="ty">MyApp</span>({<span class="kw">super</span>.key});
+
+  <span class="an">@override</span>
+  <span class="ty">Widget</span> <span class="fn">build</span>(<span class="ty">BuildContext</span> <span class="pr">context</span>) {
+    <span class="kw">return</span> <span class="ty">MaterialApp</span>(
+      title: <span class="str">'CRUD Usuarios'</span>,
+      debugShowCheckedModeBanner: <span class="kw">false</span>,
+      theme: <span class="ty">ThemeData</span>(
+        colorScheme: <span class="ty">ColorScheme</span>.<span class="fn">fromSeed</span>(seedColor: <span class="ty">Colors</span>.teal),
+        useMaterial3: <span class="kw">true</span>,
+      ),
+      home: <span class="kw">const</span> <span class="ty">UserListScreen</span>(),
+    );
+  }
+}</code></pre>
+      </div>
+
+      <p>Ahora ejecuta la aplicación desde la terminal:</p>
+      <div class="code-wrapper">
+        <div class="code-tab"><span class="filename">Terminal</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+        <pre><code>flutter run</code></pre>
+      </div>
+
+      <div class="info-box tip"><strong>✅ ¡Listo!</strong> Tu app Flutter debería mostrar la lista de 10 usuarios de JSONPlaceholder. Puedes tocar el botón <strong>+</strong> para crear, el ícono ✏️ para editar y el 🗑️ para eliminar.</div>
+      <div class="info-box warn"><strong>⚠️ Nota sobre JSONPlaceholder:</strong> Esta API es de prueba. Las operaciones POST, PUT y DELETE simulan el guardado pero no persisten realmente en el servidor. Sin embargo, las respuestas HTTP son correctas para validar el flujo de la app.</div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════ ACTIVIDADES ══════════════ -->
+  <div class="act-section" id="actividades">
+
+    <div class="act-section-header">
+      <span class="act-icon">🧩</span>
+      <div>
+        <h2>Actividades <span>Prácticas</span></h2>
+        <p>Retos para reforzar lo aprendido · Aplica lo que construiste en la guía</p>
+      </div>
+    </div>
+
+    <!-- ── Tarjetas resumen ── -->
+    <div class="act-grid">
+
+      <div class="act-card">
+        <div class="act-card-top">
+          <span class="act-emoji">🔍</span>
+          <span class="act-diff diff-easy">Fácil</span>
+        </div>
+        <div class="act-card-body">
+          <h4>Actividad 1 · Buscador en la lista</h4>
+          <p>Agrega un campo de texto en la pantalla principal para filtrar usuarios por nombre en tiempo real, sin hacer nuevas peticiones a la API.</p>
+        </div>
+        <div class="act-card-footer">⏱ ~20 min &nbsp;·&nbsp; 📂 user_list_screen.dart</div>
+      </div>
+
+      <div class="act-card">
+        <div class="act-card-top">
+          <span class="act-emoji">📄</span>
+          <span class="act-diff diff-easy">Fácil</span>
+        </div>
+        <div class="act-card-body">
+          <h4>Actividad 2 · Pantalla de detalle</h4>
+          <p>Al tocar un usuario de la lista, navega a una nueva pantalla que muestre todos sus datos: nombre, email, teléfono, dirección y empresa.</p>
+        </div>
+        <div class="act-card-footer">⏱ ~20 min &nbsp;·&nbsp; 📂 ui/user_detail_screen.dart</div>
+      </div>
+
+      <div class="act-card">
+        <div class="act-card-top">
+          <span class="act-emoji">↕️</span>
+          <span class="act-diff diff-easy">Fácil</span>
+        </div>
+        <div class="act-card-body">
+          <h4>Actividad 3 · Ordenar la lista</h4>
+          <p>Agrega un botón en el AppBar que permita ordenar la lista de usuarios de A→Z o Z→A por nombre con un solo toque.</p>
+        </div>
+        <div class="act-card-footer">⏱ ~15 min &nbsp;·&nbsp; 📂 user_list_screen.dart</div>
+      </div>
+
+      <div class="act-card">
+        <div class="act-card-top">
+          <span class="act-emoji">🔄</span>
+          <span class="act-diff diff-medium">Medio</span>
+        </div>
+        <div class="act-card-body">
+          <h4>Actividad 4 · Pull to refresh</h4>
+          <p>Envuelve el <code>ListView</code> en un <code>RefreshIndicator</code> para que el usuario pueda deslizar hacia abajo y recargar la lista de la API.</p>
+        </div>
+        <div class="act-card-footer">⏱ ~15 min &nbsp;·&nbsp; 📂 user_list_screen.dart</div>
+      </div>
+
+      <div class="act-card">
+        <div class="act-card-top">
+          <span class="act-emoji">✅</span>
+          <span class="act-diff diff-medium">Medio</span>
+        </div>
+        <div class="act-card-body">
+          <h4>Actividad 5 · Validaciones extra</h4>
+          <p>Mejora el formulario: valida que el teléfono solo tenga números, que el email tenga un dominio válido y que el nombre tenga mínimo 3 caracteres.</p>
+        </div>
+        <div class="act-card-footer">⏱ ~20 min &nbsp;·&nbsp; 📂 ui/user_form_screen.dart</div>
+      </div>
+
+      <div class="act-card">
+        <div class="act-card-top">
+          <span class="act-emoji">🎨</span>
+          <span class="act-diff diff-hard">Reto</span>
+        </div>
+        <div class="act-card-body">
+          <h4>Actividad 6 · Cambiar a GridView</h4>
+          <p>Reemplaza el <code>ListView</code> por un <code>GridView</code> con tarjetas que muestren avatar, nombre y email. Agrega un toggle para cambiar entre vista lista y grilla.</p>
+        </div>
+        <div class="act-card-footer">⏱ ~30 min &nbsp;·&nbsp; 📂 user_list_screen.dart</div>
+      </div>
+
+    </div>
+
+    <!-- ══ ACTIVIDAD 1 DETALLADA ══ -->
+    <div class="act-full">
+      <div class="act-full-header" onclick="toggleAct(this)">
+        <div class="act-full-num">A1</div>
+        <span class="act-full-title">🔍 Actividad 1 — Buscador en la lista (con código guía)</span>
+        <div class="act-full-badges">
+          <span class="act-diff diff-easy">Fácil</span>
+          <span style="font-size:11px;color:var(--text-muted);">⏱ 20 min</span>
+        </div>
+        <span class="act-chevron">▼</span>
+      </div>
+      <div class="act-full-body">
+        <p><strong>Objetivo:</strong> Agregar un <code>TextField</code> de búsqueda encima de la lista para que, al escribir, se filtren los usuarios cuyo nombre contenga el texto ingresado. El filtro actúa sobre la lista en memoria, sin llamadas extras a la API.</p>
+
+        <p><strong>Pasos a seguir:</strong></p>
+        <ul class="steps-list">
+          <li><span class="s-num">1</span>Agrega dos listas: <code>_allUsers</code> (original) y <code>_filtered</code> (la que muestra el ListView).</li>
+          <li><span class="s-num">2</span>Crea un <code>TextEditingController</code> llamado <code>_searchCtrl</code>.</li>
+          <li><span class="s-num">3</span>Agrega el método <code>_onSearch()</code> que filtra <code>_allUsers</code> y actualiza <code>_filtered</code> con <code>setState()</code>.</li>
+          <li><span class="s-num">4</span>Coloca un <code>TextField</code> dentro de un <code>Padding</code> en la parte superior del <code>body</code>, antes del <code>ListView</code>.</li>
+          <li><span class="s-num">5</span>Conecta el campo con <code>onChanged: (_) => _onSearch()</code>.</li>
+          <li><span class="s-num">6</span>Haz que el <code>ListView.builder</code> use <code>_filtered</code> en vez de <code>_users</code>.</li>
+        </ul>
+
+        <p><strong>Modifica el estado — agrega estas variables:</strong></p>
+        <div class="code-wrapper">
+          <div class="code-tab"><span class="filename">user_list_screen.dart — nuevas variables</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+          <pre><code>  <span class="ty">List</span>&lt;<span class="ty">User</span>&gt; <span class="pr">_allUsers</span>  = [];   <span class="cm">// lista completa de la API</span>
+  <span class="ty">List</span>&lt;<span class="ty">User</span>&gt; <span class="pr">_filtered</span> = [];   <span class="cm">// lista que muestra el ListView</span>
+  <span class="kw">final</span> <span class="ty">TextEditingController</span> <span class="pr">_searchCtrl</span> = <span class="ty">TextEditingController</span>();</code></pre>
+        </div>
+
+        <p><strong>Modifica <code>_loadUsers()</code> para llenar ambas listas:</strong></p>
+        <div class="code-wrapper">
+          <div class="code-tab"><span class="filename">_loadUsers() actualizado</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+          <pre><code>  <span class="kw">Future</span>&lt;<span class="kw">void</span>&gt; <span class="fn">_loadUsers</span>() <span class="kw">async</span> {
+    <span class="fn">setState</span>(() =&gt; <span class="pr">_loading</span> = <span class="kw">true</span>);
+    <span class="kw">try</span> {
+      <span class="kw">final</span> <span class="pr">users</span> = <span class="kw">await</span> <span class="pr">_api</span>.<span class="fn">getUsers</span>();
+      <span class="fn">setState</span>(() {
+        <span class="pr">_allUsers</span>  = <span class="pr">users</span>;
+        <span class="pr">_filtered</span>  = <span class="pr">users</span>;  <span class="cm">// al inicio muestra todos</span>
+        <span class="pr">_loading</span>   = <span class="kw">false</span>;
+      });
+    } <span class="kw">catch</span> (<span class="pr">e</span>) {
+      <span class="fn">setState</span>(() =&gt; <span class="pr">_loading</span> = <span class="kw">false</span>);
+    }
+  }</code></pre>
+        </div>
+
+        <p><strong>Agrega el método de búsqueda:</strong></p>
+        <div class="code-wrapper">
+          <div class="code-tab"><span class="filename">método _onSearch()</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+          <pre><code>  <span class="kw">void</span> <span class="fn">_onSearch</span>() {
+    <span class="kw">final</span> <span class="pr">query</span> = <span class="pr">_searchCtrl</span>.text.<span class="fn">toLowerCase</span>();
+    <span class="fn">setState</span>(() {
+      <span class="pr">_filtered</span> = <span class="pr">_allUsers</span>
+          .<span class="fn">where</span>((<span class="pr">u</span>) =&gt; <span class="pr">u</span>.name.<span class="fn">toLowerCase</span>().<span class="fn">contains</span>(<span class="pr">query</span>))
+          .<span class="fn">toList</span>();
+    });
+  }</code></pre>
+        </div>
+
+        <p><strong>Reemplaza el <code>body</code> del Scaffold con esto:</strong></p>
+        <div class="code-wrapper">
+          <div class="code-tab"><span class="filename">body con buscador + lista</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+          <pre><code>      body: <span class="pr">_loading</span>
+          ? <span class="kw">const</span> <span class="ty">Center</span>(child: <span class="ty">CircularProgressIndicator</span>())
+          : <span class="ty">Column</span>(
+              children: [
+                <span class="cm">// ── Campo de búsqueda ──</span>
+                <span class="ty">Padding</span>(
+                  padding: <span class="kw">const</span> <span class="ty">EdgeInsets</span>.<span class="fn">all</span>(<span class="num">12</span>),
+                  child: <span class="ty">TextField</span>(
+                    controller: <span class="pr">_searchCtrl</span>,
+                    onChanged: (<span class="pr">_</span>) =&gt; <span class="fn">_onSearch</span>(),
+                    decoration: <span class="ty">InputDecoration</span>(
+                      hintText: <span class="str">'Buscar por nombre...'</span>,
+                      prefixIcon: <span class="kw">const</span> <span class="ty">Icon</span>(<span class="ty">Icons</span>.search),
+                      suffixIcon: <span class="pr">_searchCtrl</span>.text.isNotEmpty
+                          ? <span class="ty">IconButton</span>(
+                              icon: <span class="kw">const</span> <span class="ty">Icon</span>(<span class="ty">Icons</span>.clear),
+                              onPressed: () {
+                                <span class="pr">_searchCtrl</span>.<span class="fn">clear</span>();
+                                <span class="fn">_onSearch</span>();
+                              },
+                            )
+                          : <span class="kw">null</span>,
+                      border: <span class="ty">OutlineInputBorder</span>(
+                        borderRadius: <span class="ty">BorderRadius</span>.<span class="fn">circular</span>(<span class="num">10</span>),
+                      ),
+                      filled: <span class="kw">true</span>,
+                    ),
+                  ),
+                ),
+
+                <span class="cm">// ── Lista filtrada ──</span>
+                <span class="ty">Expanded</span>(
+                  child: <span class="pr">_filtered</span>.isEmpty
+                      ? <span class="kw">const</span> <span class="ty">Center</span>(child: <span class="ty">Text</span>(<span class="str">'Sin resultados'</span>))
+                      : <span class="ty">ListView</span>.<span class="fn">builder</span>(
+                          itemCount: <span class="pr">_filtered</span>.length,
+                          itemBuilder: (<span class="pr">_</span>, <span class="pr">i</span>) {
+                            <span class="kw">final</span> <span class="pr">user</span> = <span class="pr">_filtered</span>[<span class="pr">i</span>];
+                            <span class="cm">// ... mismo Card que tenías antes ...</span>
+                            <span class="kw">return</span> <span class="ty">Card</span>(
+                              margin: <span class="kw">const</span> <span class="ty">EdgeInsets</span>.<span class="fn">symmetric</span>(
+                                  horizontal: <span class="num">12</span>, vertical: <span class="num">6</span>),
+                              child: <span class="ty">ListTile</span>(
+                                leading: <span class="ty">CircleAvatar</span>(
+                                  backgroundColor: <span class="ty">Colors</span>.teal,
+                                  child: <span class="ty">Text</span>(
+                                    <span class="pr">user</span>.name[<span class="num">0</span>].toUpperCase(),
+                                    style: <span class="kw">const</span> <span class="ty">TextStyle</span>(color: <span class="ty">Colors</span>.white),
+                                  ),
+                                ),
+                                title: <span class="ty">Text</span>(<span class="pr">user</span>.name,
+                                    style: <span class="kw">const</span> <span class="ty">TextStyle</span>(
+                                        fontWeight: <span class="ty">FontWeight</span>.bold)),
+                                subtitle: <span class="ty">Text</span>(<span class="pr">user</span>.email),
+                                trailing: <span class="ty">Row</span>(
+                                  mainAxisSize: <span class="ty">MainAxisSize</span>.min,
+                                  children: [
+                                    <span class="ty">IconButton</span>(
+                                      icon: <span class="kw">const</span> <span class="ty">Icon</span>(<span class="ty">Icons</span>.edit,
+                                          color: <span class="ty">Colors</span>.blue),
+                                      onPressed: () =&gt; <span class="fn">_openForm</span>(<span class="pr">user</span>),
+                                    ),
+                                    <span class="ty">IconButton</span>(
+                                      icon: <span class="kw">const</span> <span class="ty">Icon</span>(<span class="ty">Icons</span>.delete,
+                                          color: <span class="ty">Colors</span>.red),
+                                      onPressed: () =&gt; <span class="fn">_deleteUser</span>(<span class="pr">user</span>),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                ),
+              ],
+            ),</code></pre>
+        </div>
+
+        <div class="submit-row">
+          <span class="s-icon">🎯</span>
+          <div>
+            <h4>Resultado esperado</h4>
+            <p>Al escribir en el campo, la lista se filtra instantáneamente. Al borrar el texto, vuelven a aparecer todos los usuarios. El botón ✕ limpia el campo.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ACTIVIDAD 2 DETALLADA ══ -->
+    <div class="act-full">
+      <div class="act-full-header" onclick="toggleAct(this)">
+        <div class="act-full-num">A2</div>
+        <span class="act-full-title">📄 Actividad 2 — Pantalla de detalle del usuario</span>
+        <div class="act-full-badges">
+          <span class="act-diff diff-easy">Fácil</span>
+          <span style="font-size:11px;color:var(--text-muted);">⏱ 20 min</span>
+        </div>
+        <span class="act-chevron">▼</span>
+      </div>
+      <div class="act-full-body">
+        <p><strong>Objetivo:</strong> Crear una pantalla <code>UserDetailScreen</code> que reciba un objeto <code>User</code> y muestre toda su información en una vista de perfil.</p>
+
+        <ul class="steps-list">
+          <li><span class="s-num">1</span>Crea el archivo <code>lib/ui/user_detail_screen.dart</code>.</li>
+          <li><span class="s-num">2</span>El widget recibe un <code>User</code> por parámetro (puede ser <code>StatelessWidget</code>).</li>
+          <li><span class="s-num">3</span>Muestra un <code>CircleAvatar</code> grande con la inicial del nombre como cabecera.</li>
+          <li><span class="s-num">4</span>Lista los campos con <code>ListTile</code>: nombre, email, teléfono.</li>
+          <li><span class="s-num">5</span>En <code>user_list_screen.dart</code>, envuelve el <code>Card</code> en un <code>GestureDetector</code> o usa <code>onTap</code> del <code>ListTile</code> para navegar.</li>
+        </ul>
+
+        <p><strong>Estructura del archivo de detalle:</strong></p>
+        <div class="code-wrapper">
+          <div class="code-tab"><span class="filename">lib/ui/user_detail_screen.dart</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+          <pre><code><span class="kw">import</span> <span class="str">'package:flutter/material.dart'</span>;
+<span class="kw">import</span> <span class="str">'../models/user.dart'</span>;
+
+<span class="kw">class</span> <span class="ty">UserDetailScreen</span> <span class="kw">extends</span> <span class="ty">StatelessWidget</span> {
+  <span class="kw">final</span> <span class="ty">User</span> <span class="pr">user</span>;
+  <span class="kw">const</span> <span class="ty">UserDetailScreen</span>({<span class="kw">super</span>.key, <span class="kw">required</span> <span class="kw">this</span>.<span class="pr">user</span>});
+
+  <span class="an">@override</span>
+  <span class="ty">Widget</span> <span class="fn">build</span>(<span class="ty">BuildContext</span> <span class="pr">context</span>) {
+    <span class="kw">return</span> <span class="ty">Scaffold</span>(
+      appBar: <span class="ty">AppBar</span>(
+        title: <span class="kw">const</span> <span class="ty">Text</span>(<span class="str">'Detalle de usuario'</span>),
+        backgroundColor: <span class="ty">Colors</span>.teal,
+        foregroundColor: <span class="ty">Colors</span>.white,
+      ),
+      body: <span class="ty">Column</span>(
+        children: [
+          <span class="cm">// ── Cabecera con avatar ──</span>
+          <span class="ty">Container</span>(
+            width: <span class="kw">double</span>.infinity,
+            color: <span class="ty">Colors</span>.teal,
+            padding: <span class="kw">const</span> <span class="ty">EdgeInsets</span>.<span class="fn">symmetric</span>(vertical: <span class="num">30</span>),
+            child: <span class="ty">Column</span>(
+              children: [
+                <span class="ty">CircleAvatar</span>(
+                  radius: <span class="num">40</span>,
+                  backgroundColor: <span class="ty">Colors</span>.white,
+                  child: <span class="ty">Text</span>(
+                    <span class="pr">user</span>.name[<span class="num">0</span>].toUpperCase(),
+                    style: <span class="kw">const</span> <span class="ty">TextStyle</span>(fontSize: <span class="num">32</span>, color: <span class="ty">Colors</span>.teal),
+                  ),
+                ),
+                <span class="kw">const</span> <span class="ty">SizedBox</span>(height: <span class="num">10</span>),
+                <span class="ty">Text</span>(<span class="pr">user</span>.name,
+                    style: <span class="kw">const</span> <span class="ty">TextStyle</span>(color: <span class="ty">Colors</span>.white,
+                        fontSize: <span class="num">20</span>, fontWeight: <span class="ty">FontWeight</span>.bold)),
+              ],
+            ),
+          ),
+
+          <span class="cm">// ── Datos del usuario ──</span>
+          <span class="ty">ListTile</span>(
+            leading: <span class="kw">const</span> <span class="ty">Icon</span>(<span class="ty">Icons</span>.email, color: <span class="ty">Colors</span>.teal),
+            title: <span class="kw">const</span> <span class="ty">Text</span>(<span class="str">'Email'</span>),
+            subtitle: <span class="ty">Text</span>(<span class="pr">user</span>.email),
+          ),
+          <span class="kw">const</span> <span class="ty">Divider</span>(),
+          <span class="ty">ListTile</span>(
+            leading: <span class="kw">const</span> <span class="ty">Icon</span>(<span class="ty">Icons</span>.phone, color: <span class="ty">Colors</span>.teal),
+            title: <span class="kw">const</span> <span class="ty">Text</span>(<span class="str">'Teléfono'</span>),
+            subtitle: <span class="ty">Text</span>(<span class="pr">user</span>.phone),
+          ),
+        ],
+      ),
+    );
+  }
+}</code></pre>
+        </div>
+
+        <p><strong>Navegar desde la lista — agrega <code>onTap</code> al <code>ListTile</code>:</strong></p>
+        <div class="code-wrapper">
+          <div class="code-tab"><span class="filename">onTap en ListTile (user_list_screen.dart)</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+          <pre><code>  onTap: () {
+    <span class="ty">Navigator</span>.<span class="fn">push</span>(
+      context,
+      <span class="ty">MaterialPageRoute</span>(
+        builder: (<span class="pr">_</span>) =&gt; <span class="ty">UserDetailScreen</span>(user: <span class="pr">user</span>),
+      ),
+    );
+  },</code></pre>
+        </div>
+
+        <div class="submit-row">
+          <span class="s-icon">🎯</span>
+          <div>
+            <h4>Resultado esperado</h4>
+            <p>Al tocar una tarjeta de usuario, la app navega a una nueva pantalla con su cabecera verde, avatar con inicial y los campos de email y teléfono.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ACTIVIDADES 3-6 COLAPSADAS ══ -->
+    <div class="act-full">
+      <div class="act-full-header" onclick="toggleAct(this)">
+        <div class="act-full-num">A3</div>
+        <span class="act-full-title">↕️ Actividad 3 — Ordenar la lista A→Z / Z→A</span>
+        <div class="act-full-badges">
+          <span class="act-diff diff-easy">Fácil</span>
+          <span style="font-size:11px;color:var(--text-muted);">⏱ 15 min</span>
+        </div>
+        <span class="act-chevron">▼</span>
+      </div>
+      <div class="act-full-body">
+        <p><strong>Objetivo:</strong> Agregar en el <code>AppBar</code> un <code>IconButton</code> con un ícono de ordenar. Cada vez que se toca, alterna el orden de la lista entre ascendente (A→Z) y descendente (Z→A).</p>
+
+        <ul class="steps-list">
+          <li><span class="s-num">1</span>Agrega una variable <code>bool _ascending = true;</code> al estado.</li>
+          <li><span class="s-num">2</span>Crea el método <code>_toggleSort()</code> que invierte <code>_ascending</code> y reordena <code>_filtered</code>.</li>
+          <li><span class="s-num">3</span>Agrega un <code>IconButton</code> en el <code>actions</code> del <code>AppBar</code>.</li>
+        </ul>
+
+        <div class="code-wrapper">
+          <div class="code-tab"><span class="filename">método _toggleSort() + AppBar actions</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+          <pre><code>  <span class="ty">bool</span> <span class="pr">_ascending</span> = <span class="kw">true</span>;
+
+  <span class="kw">void</span> <span class="fn">_toggleSort</span>() {
+    <span class="fn">setState</span>(() {
+      <span class="pr">_ascending</span> = !<span class="pr">_ascending</span>;
+      <span class="pr">_filtered</span>.<span class="fn">sort</span>((<span class="pr">a</span>, <span class="pr">b</span>) =&gt; <span class="pr">_ascending</span>
+          ? <span class="pr">a</span>.name.<span class="fn">compareTo</span>(<span class="pr">b</span>.name)
+          : <span class="pr">b</span>.name.<span class="fn">compareTo</span>(<span class="pr">a</span>.name));
+    });
+  }
+
+  <span class="cm">// En el AppBar:</span>
+  actions: [
+    <span class="ty">IconButton</span>(
+      icon: <span class="ty">Icon</span>(<span class="pr">_ascending</span> ? <span class="ty">Icons</span>.sort_by_alpha : <span class="ty">Icons</span>.sort),
+      tooltip: <span class="pr">_ascending</span> ? <span class="str">'Orden Z→A'</span> : <span class="str">'Orden A→Z'</span>,
+      onPressed: <span class="pr">_toggleSort</span>,
+    ),
+  ],</code></pre>
+        </div>
+        <div class="submit-row">
+          <span class="s-icon">🎯</span>
+          <div>
+            <h4>Resultado esperado</h4>
+            <p>El ícono del AppBar cambia con cada toque y la lista se reordena instantáneamente según el criterio elegido.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="act-full">
+      <div class="act-full-header" onclick="toggleAct(this)">
+        <div class="act-full-num">A4</div>
+        <span class="act-full-title">🔄 Actividad 4 — Pull to Refresh</span>
+        <div class="act-full-badges">
+          <span class="act-diff diff-medium">Medio</span>
+          <span style="font-size:11px;color:var(--text-muted);">⏱ 15 min</span>
+        </div>
+        <span class="act-chevron">▼</span>
+      </div>
+      <div class="act-full-body">
+        <p><strong>Objetivo:</strong> Envolver el <code>ListView</code> en un <code>RefreshIndicator</code> para que el usuario pueda deslizar hacia abajo y recargar los datos desde la API.</p>
+
+        <ul class="steps-list">
+          <li><span class="s-num">1</span>En el <code>body</code>, envuelve el <code>Expanded</code> (o directamente el <code>ListView</code>) en un <code>RefreshIndicator</code>.</li>
+          <li><span class="s-num">2</span>Asigna <code>onRefresh: _loadUsers</code> al <code>RefreshIndicator</code>.</li>
+          <li><span class="s-num">3</span>Asegúrate de que <code>_loadUsers()</code> retorne <code>Future&lt;void&gt;</code> (ya lo hace).</li>
+        </ul>
+
+        <div class="code-wrapper">
+          <div class="code-tab"><span class="filename">RefreshIndicator en el body</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+          <pre><code>  <span class="ty">RefreshIndicator</span>(
+    onRefresh: <span class="pr">_loadUsers</span>,  <span class="cm">// llama a la función al deslizar</span>
+    color: <span class="ty">Colors</span>.teal,
+    child: <span class="ty">ListView</span>.<span class="fn">builder</span>(
+      <span class="cm">// ... tu código existente ...</span>
+    ),
+  )</code></pre>
+        </div>
+        <div class="submit-row">
+          <span class="s-icon">🎯</span>
+          <div>
+            <h4>Resultado esperado</h4>
+            <p>Al deslizar la lista hacia abajo aparece el indicador circular de carga y la lista se recarga con los datos frescos de la API.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="act-full">
+      <div class="act-full-header" onclick="toggleAct(this)">
+        <div class="act-full-num">A5</div>
+        <span class="act-full-title">✅ Actividad 5 — Validaciones avanzadas en el formulario</span>
+        <div class="act-full-badges">
+          <span class="act-diff diff-medium">Medio</span>
+          <span style="font-size:11px;color:var(--text-muted);">⏱ 20 min</span>
+        </div>
+        <span class="act-chevron">▼</span>
+      </div>
+      <div class="act-full-body">
+        <p><strong>Objetivo:</strong> Mejorar los validadores del formulario con reglas más específicas usando expresiones regulares básicas.</p>
+
+        <ul class="steps-list">
+          <li><span class="s-num">1</span>Nombre: mínimo 3 caracteres y solo letras/espacios.</li>
+          <li><span class="s-num">2</span>Email: debe contener <code>@</code> y un punto después del dominio.</li>
+          <li><span class="s-num">3</span>Teléfono: solo dígitos, guiones y paréntesis, mínimo 7 caracteres.</li>
+        </ul>
+
+        <div class="code-wrapper">
+          <div class="code-tab"><span class="filename">Validadores mejorados (user_form_screen.dart)</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+          <pre><code>  <span class="cm">// Validador de nombre</span>
+  validator: (<span class="pr">v</span>) {
+    <span class="kw">if</span> (<span class="pr">v</span> == <span class="kw">null</span> || <span class="pr">v</span>.trim().length &lt; <span class="num">3</span>)
+      <span class="kw">return</span> <span class="str">'Mínimo 3 caracteres'</span>;
+    <span class="kw">if</span> (!<span class="ty">RegExp</span>(<span class="str">r'^[a-zA-ZÀ-ÿ\s]+$'</span>).<span class="fn">hasMatch</span>(<span class="pr">v</span>))
+      <span class="kw">return</span> <span class="str">'Solo letras y espacios'</span>;
+    <span class="kw">return</span> <span class="kw">null</span>;
+  },
+
+  <span class="cm">// Validador de email</span>
+  validator: (<span class="pr">v</span>) {
+    <span class="kw">if</span> (<span class="pr">v</span> == <span class="kw">null</span> || <span class="pr">v</span>.isEmpty) <span class="kw">return</span> <span class="str">'Campo requerido'</span>;
+    <span class="kw">if</span> (!<span class="ty">RegExp</span>(<span class="str">r'^[\w\.-]+@[\w\.-]+\.\w{2,}$'</span>).<span class="fn">hasMatch</span>(<span class="pr">v</span>))
+      <span class="kw">return</span> <span class="str">'Correo inválido'</span>;
+    <span class="kw">return</span> <span class="kw">null</span>;
+  },
+
+  <span class="cm">// Validador de teléfono</span>
+  validator: (<span class="pr">v</span>) {
+    <span class="kw">if</span> (<span class="pr">v</span> == <span class="kw">null</span> || <span class="pr">v</span>.length &lt; <span class="num">7</span>) <span class="kw">return</span> <span class="str">'Mínimo 7 dígitos'</span>;
+    <span class="kw">if</span> (!<span class="ty">RegExp</span>(<span class="str">r'^[\d\s\-\(\)]+$'</span>).<span class="fn">hasMatch</span>(<span class="pr">v</span>))
+      <span class="kw">return</span> <span class="str">'Solo números, guiones y paréntesis'</span>;
+    <span class="kw">return</span> <span class="kw">null</span>;
+  },</code></pre>
+        </div>
+        <div class="submit-row">
+          <span class="s-icon">🎯</span>
+          <div>
+            <h4>Resultado esperado</h4>
+            <p>El formulario muestra mensajes de error específicos debajo de cada campo cuando el valor no cumple las reglas.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="act-full">
+      <div class="act-full-header" onclick="toggleAct(this)">
+        <div class="act-full-num">A6</div>
+        <span class="act-full-title">🎨 Actividad 6 — Toggle ListView / GridView</span>
+        <div class="act-full-badges">
+          <span class="act-diff diff-hard">Reto</span>
+          <span style="font-size:11px;color:var(--text-muted);">⏱ 30 min</span>
+        </div>
+        <span class="act-chevron">▼</span>
+      </div>
+      <div class="act-full-body">
+        <p><strong>Objetivo:</strong> Agregar un botón en el AppBar que alterne la vista entre una lista (<code>ListView</code>) y una cuadrícula (<code>GridView</code>) de tarjetas de usuario.</p>
+
+        <ul class="steps-list">
+          <li><span class="s-num">1</span>Agrega una variable <code>bool _isGrid = false;</code> al estado.</li>
+          <li><span class="s-num">2</span>En el <code>AppBar.actions</code> coloca un <code>IconButton</code> que alterne el ícono entre <code>Icons.grid_view</code> y <code>Icons.list</code>.</li>
+          <li><span class="s-num">3</span>Usa un operador ternario en el <code>body</code> para mostrar <code>ListView.builder</code> o <code>GridView.builder</code> según el estado.</li>
+          <li><span class="s-num">4</span>El <code>GridView</code> debe usar <code>SliverGridDelegateWithFixedCrossAxisCount</code> con 2 columnas.</li>
+          <li><span class="s-num">5</span>Cada celda del grid muestra un <code>Card</code> con avatar, nombre y email centrados.</li>
+        </ul>
+
+        <div class="code-wrapper">
+          <div class="code-tab"><span class="filename">Toggle + GridView.builder</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+          <pre><code>  <span class="ty">bool</span> <span class="pr">_isGrid</span> = <span class="kw">false</span>;
+
+  <span class="cm">// En AppBar.actions:</span>
+  <span class="ty">IconButton</span>(
+    icon: <span class="ty">Icon</span>(<span class="pr">_isGrid</span> ? <span class="ty">Icons</span>.list : <span class="ty">Icons</span>.grid_view),
+    onPressed: () =&gt; <span class="fn">setState</span>(() =&gt; <span class="pr">_isGrid</span> = !<span class="pr">_isGrid</span>),
+  ),
+
+  <span class="cm">// En el body (reemplaza el ListView):</span>
+  <span class="pr">_isGrid</span>
+    ? <span class="ty">GridView</span>.<span class="fn">builder</span>(
+        padding: <span class="kw">const</span> <span class="ty">EdgeInsets</span>.<span class="fn">all</span>(<span class="num">12</span>),
+        gridDelegate: <span class="kw">const</span> <span class="ty">SliverGridDelegateWithFixedCrossAxisCount</span>(
+          crossAxisCount: <span class="num">2</span>,
+          crossAxisSpacing: <span class="num">10</span>,
+          mainAxisSpacing: <span class="num">10</span>,
+          childAspectRatio: <span class="num">0.85</span>,
+        ),
+        itemCount: <span class="pr">_filtered</span>.length,
+        itemBuilder: (<span class="pr">_</span>, <span class="pr">i</span>) {
+          <span class="kw">final</span> <span class="pr">u</span> = <span class="pr">_filtered</span>[<span class="pr">i</span>];
+          <span class="kw">return</span> <span class="ty">Card</span>(
+            child: <span class="ty">Column</span>(
+              mainAxisAlignment: <span class="ty">MainAxisAlignment</span>.center,
+              children: [
+                <span class="ty">CircleAvatar</span>(
+                  radius: <span class="num">28</span>,
+                  backgroundColor: <span class="ty">Colors</span>.teal,
+                  child: <span class="ty">Text</span>(<span class="pr">u</span>.name[<span class="num">0</span>].toUpperCase(),
+                      style: <span class="kw">const</span> <span class="ty">TextStyle</span>(color: <span class="ty">Colors</span>.white, fontSize: <span class="num">22</span>)),
+                ),
+                <span class="kw">const</span> <span class="ty">SizedBox</span>(height: <span class="num">10</span>),
+                <span class="ty">Text</span>(<span class="pr">u</span>.name,
+                    textAlign: <span class="ty">TextAlign</span>.center,
+                    style: <span class="kw">const</span> <span class="ty">TextStyle</span>(fontWeight: <span class="ty">FontWeight</span>.bold, fontSize: <span class="num">13</span>)),
+                <span class="kw">const</span> <span class="ty">SizedBox</span>(height: <span class="num">4</span>),
+                <span class="ty">Text</span>(<span class="pr">u</span>.email,
+                    textAlign: <span class="ty">TextAlign</span>.center,
+                    style: <span class="kw">const</span> <span class="ty">TextStyle</span>(fontSize: <span class="num">11</span>, color: <span class="ty">Colors</span>.grey),
+                    overflow: <span class="ty">TextOverflow</span>.ellipsis),
+              ],
+            ),
+          );
+        },
+      )
+    : <span class="ty">ListView</span>.<span class="fn">builder</span>( <span class="cm">/* tu ListView existente */</span> )</code></pre>
+        </div>
+
+        <div class="submit-row">
+          <span class="s-icon">🎯</span>
+          <div>
+            <h4>Resultado esperado</h4>
+            <p>El botón del AppBar alterna entre lista y cuadrícula. La grilla muestra tarjetas compactas de 2 columnas con avatar, nombre y email.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /act-section -->
+
+</main>
+
+<!-- ══════════════ FOOTER ══════════════ -->
+<footer>
+  <strong>Programación Móvil</strong> · Profesor: Alex Vacca · Universidad Popular del Cesar<br>
+  <span style="opacity:.5; margin-top:6px; display:block;">Flutter 3.41 · JSONPlaceholder API · CRUD con StatefulWidget</span>
+</footer>
+
+<script>
+  function copyCode(btn) {
+    const pre = btn.closest('.code-wrapper').querySelector('pre');
+    const text = pre.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '✓ Copiado';
+      setTimeout(() => btn.textContent = 'Copiar', 2000);
+    });
+  }
+
+  function toggleAct(header) {
+    const body    = header.nextElementSibling;
+    const chevron = header.querySelector('.act-chevron');
+    const isOpen  = body.classList.contains('visible');
+    body.classList.toggle('visible', !isOpen);
+    chevron.classList.toggle('open', !isOpen);
+  }
+</script>
+</body>
+</html>
